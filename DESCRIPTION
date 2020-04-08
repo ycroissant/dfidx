@@ -1,0 +1,18 @@
+Package: dfidx
+Version: 0.0-1
+Date: 2020-04-08
+Title: Indexed data.frame
+Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
+Depends: R (>= 2.10)
+Imports: dplyr, Formula
+Suggests: knitr, AER, mlogit
+Description: Indexed data frames, ie data frames for which series have a tabular structure. Nesting structure for both indexes is supported.
+License: GPL (>=2)
+URL: https://cran.r-project.org/package=dfidx
+VignetteBuilder: knitr
+RoxygenNote: 7.0.2
+Roxygen: list(markdown = TRUE)
+Encoding: UTF-8
+NeedsCompilation: no
+Author: Yves Croissant [aut, cre]
+Maintainer: Yves Croissant <yves.croissant@univ-reunion.fr>
