@@ -815,7 +815,7 @@ head.dfidx <- function(x, n = 10L, ...) print(x, n = min(nrow(x), n), ...)
 #' @rdname methods.dfidx
 #' @export
 "[[<-.dfidx" <- function(object, y, value){
-  if (class(value)[1] == "pseries"){
+  if (class(value)[1] == "xseries"){
     class(value) <- class(value)[-1]
     attr(value, "idx") <- NULL
   }
