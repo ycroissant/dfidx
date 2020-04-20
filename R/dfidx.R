@@ -1,6 +1,6 @@
 # immer (MASS) Cefamandole (nmle)
 
-' Structured data frames
+#' Data frames with indexes
 #'
 #' data frames for which observations are defined by two (potentialy
 #' nested) indexes and for which series have thefore a natural tabular
@@ -16,7 +16,7 @@
 #' @param pkg if set, the resulting `dfidx` object is of class
 #'     `c("dfidx_pkg", "dfidx")` which enables to write specific
 #'     classes
-#' @param fancy.row.names dd
+#' @param fancy.row.names if `TRUE`, fancy row names are computed
 #' @param subset a logical which defines a subset of rows to return
 #' @param idnames the names of the indexes
 #' @param shape either `wide` or `long`
@@ -27,7 +27,8 @@
 #' @param levels the levels for the second index
 #' @param ranked a boolean for ranked data
 #' @param ... further arguments
-#' @details des details
+#' @details Indexes are stored as a `data.frame` column in the
+#'     resulting `dfidx` object
 #' @return an object of class `"dfidx"`
 #' @export
 #' @importFrom stats reshape as.formula formula terms update relevel
@@ -140,6 +141,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     # proceed for data in wide format
 
     grpvar <- NULL
+    
     if (! is.null(idx) && (length(idx) == 1) && (is.na(idx[[1]][1]))){
         grpvar <- idx[[1]][2]
         idx <- NULL
@@ -158,7 +160,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     # "aseries"), which means that there is no variable to identify
     # the first index. Then just create it
 
-    if (shape == "long" && is.list(idx) && is.na(idx[[1]])){
+    if (shape == "long" && is.list(idx) && is.na(idx[[1]][1])){
         nalts <- length(unique(data[[idx[[2]]]]))
         nchid <- nrow(data) / nalts
         data$id1 <- rep(1:nchid, each = nalts)
@@ -509,9 +511,9 @@ mymlogit2rank <- function(x, choicename, ...){
 
 #' Index for dfidx
 #'
-#' the index of a dfidx is a data.frame containing the different
+#' The index of a `dfidx` is a dat .frame containing the different
 #' series which define the two indexes (with possibly a nesting
-#' structure). It is stored as "sticky" data.frame column of the
+#' structure). It is stored as a "sticky" data.frame column of the
 #' data.frame and is also inherited by series (of class `'xseries'`)
 #' which are extracted from a `dfidx`.
 #'
@@ -524,7 +526,8 @@ mymlogit2rank <- function(x, choicename, ...){
 #'     method
 #' @details idx is defined as a generic with a `dfidx` and a `xseries`
 #'     method.
-#' @return a `data.frame` containing the indexes
+#' @return a `data.frame` containing the indexes or a series if a
+#'     specific index is selected
 #' @export
 #' @author Yves Croissant
 #' @rdname idx
@@ -582,8 +585,11 @@ format.idx <- function(x, size = 4, ...){
                  nchar(as.character(x[[2]]))), sep = ":")
 }
 
-#' Get the name of the indexes this function extracts the name of the
-#' indexes
+#' Get the names of the indexes
+#'
+#' 
+#' This function extract the names of the indexes or the name of a
+#' specific index
 #'
 #' @name idx_name
 #' @param x a `dfidx`, a `idx` or a `xseries` object
@@ -643,20 +649,21 @@ idx_name.xseries <- function(x, n = NULL, m = NULL){
 
 #' Methods for dfidx
 #'
-#' a `dfidx` is a `data.frame` with a "sticky" data.frame column
+#' A `dfidx` is a `data.frame` with a "sticky" data.frame column
 #' which contains the indexes. Specific methods of functions that
-#' extract lines and/or columns of a `data.frame` are provided
+#' extract lines and/or columns of a `data.frame` are provided.
 #'
 #' @name methods.dfidx
-#' @param x `dfidx`
+#' @param x,object a `dfidx` object
 #' @param i the row index
 #' @param j the column index
-#' @param drop dsd
-#' @param y dsds
-#' @param object dssds
-#' @param value dssd
-#' @param row.names,optional arguments of the generic as.data.frame,
-#'     not used
+#' @param drop if `TRUE` a vector is returned if the result is a one
+#'     column `data.frame`
+#' @param y the name or the position of the series one wishes to
+#'     extract
+#' @param value the value for the replacement method
+#' @param row.names,optional arguments of the generic `as.data.frame`
+#'     method, not used
 #' @param n the number of rows for the print method
 #' @param ... further arguments
 #' @export
@@ -863,14 +870,16 @@ mean.dfidx <- function(x, ...){
 
 #' Methods for dplyr verbs
 #'
-#' methods of dplyr verbs for dfidx objects.  Default functions
-#' don't work because most of these functions returns either a tibble
-#' or a data.frame but not a dfidx
+#' methods of `dplyr` verbs for `dfidx` objects.  Default functions
+#' don't work because most of these functions returns either a
+#' `tibble` or a `data.frame` but not a `dfidx`
 #' @name dplyr
 #' @param .data a dfidx object,
 #' @param ... further arguments
 #' @return an object of class `"dfidx"`
 #' @author Yves Croissant
+#' @details These methods always return the data frame column that
+#'     contains the indexes and return a `dfidx` object.
 #' @examples
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
@@ -1019,6 +1028,8 @@ select.dfidx <- function(.data, ...){
 #' @importFrom Formula as.Formula Formula
 #' @importFrom stats model.matrix
 #' @importFrom stats model.frame
+#' @return a `dfidx` object for the `model.frame` method and a matrix
+#'     for the `model.matrix` method.
 #' @export
 #' @author Yves Croissant
 #' @examples
@@ -1125,11 +1136,14 @@ model.matrix.dfidx <- function(object, ..., lhs = NULL, rhs = 1, dot = "separate
 
 #' Fold and Unfold a dfidx object
 #'
-#' `fold_idx` takes a dfidx, includes the index as stand alone
+#' `fold_idx` takes a dfidx, includes the indexes as stand alone
 #' columns, remove the `idx` column and return a data.frame, with an
-#' `ids` attribute. `fold_idx` performs the opposite operation
+#' `ids` attribute that contains the informations about the
+#' indexes. `fold_idx` performs the opposite operation
 #' @param x a `dfidx` object
-#' @param pkg a pakcage
+#' @param pkg if not `NULL`, this argument is passed to `dfidx`
+#' @return a `data.frame` for the `unfold_dfidx` function, a `dfidx`
+#'     object for the `fold_dfidx` function
 #' @export
 #' @author Yves Croissant
 #' @examples

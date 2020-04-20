@@ -43,7 +43,7 @@ The `dfidx` package is loaded using:
 
 ```{r label = setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, widtht = 65)
-options(width = 65)
+oldoptions <- options(width = 65)
 ```
 
 ```{r }
@@ -173,7 +173,7 @@ the `region` variable:
 
 
 ```{r }
-load("~/Dropbox/Forge/plm/Produc.rda")
+data("Produc", package = "plm")
 head(Produc, 3)
 Pr <- dfidx(Produc, idx = list(c("state", "region"), "year"))
 head(Pr, 3)
@@ -602,3 +602,6 @@ model.matrix(mfTM, rhs = 2) %>% head(2)
 model.matrix(mfTM, rhs = 1:3) %>% head(2)
 ```
 
+```{r echo = FALSE}
+options(oldoptions)
+```
