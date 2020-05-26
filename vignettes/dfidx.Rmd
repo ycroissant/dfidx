@@ -150,7 +150,7 @@ being a character of length two (if there is a nesting structure) or
 one.
 
 As a first example, consider the `JapaneseFDI` data set of the
-`mlogit` package which deal with the implementation of Japanese
+`mlogit` package which deals with the implementation of Japanese
 production units in Europe. The first index `firm` refers to the the
 production units, the second one `region` to the European region where
 the production units is implemented. The `country` variable nests the
@@ -181,7 +181,7 @@ head(Pr, 3)
 
 ## Data frames in wide format
 
-`dfidx` can deal with data frames in wide format, *i.e* for which each
+`dfidx` can deal with data frames in wide format, *i.e.* for which each
 series for a given value of the second index is a column of the data
 frame. The two supplementary arguments in this case are `shape` which
 should be set to `wide` and `varying` which indicate which columns
@@ -287,7 +287,7 @@ Extractors for `data.frame` include:
 
 ## Commands that return a `data.frame`
 
-Consider first the use of `[`. . If two arguments are provided, a
+Consider first the use of `[`. If two arguments are provided, a
 `data.frame` is always returned except when a single series is
 selected, in which case the required series is returned (a
 `data.frame` is returned in this case if `drop = FALSE`).
