@@ -31,9 +31,13 @@
 an object of class \code{"dfidx"}
 }
 \description{
-methods of dplyr verbs for dfidx objects.  Default functions
-don't work because most of these functions returns either a tibble
-or a data.frame but not a dfidx
+methods of \code{dplyr} verbs for \code{dfidx} objects.  Default functions
+don't work because most of these functions returns either a
+\code{tibble} or a \code{data.frame} but not a \code{dfidx}
+}
+\details{
+These methods always return the data frame column that
+contains the indexes and return a \code{dfidx} object.
 }
 \examples{
 data("TravelMode", package = "AER")

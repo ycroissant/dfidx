@@ -12,12 +12,17 @@ fold_idx(x, pkg = NULL)
 \arguments{
 \item{x}{a \code{dfidx} object}
 
-\item{pkg}{a pakcage}
+\item{pkg}{if not \code{NULL}, this argument is passed to \code{dfidx}}
+}
+\value{
+a \code{data.frame} for the \code{unfold_dfidx} function, a \code{dfidx}
+object for the \code{fold_dfidx} function
 }
 \description{
-\code{fold_idx} takes a dfidx, includes the index as stand alone
+\code{fold_idx} takes a dfidx, includes the indexes as stand alone
 columns, remove the \code{idx} column and return a data.frame, with an
-\code{ids} attribute. \code{fold_idx} performs the opposite operation
+\code{ids} attribute that contains the informations about the
+indexes. \code{fold_idx} performs the opposite operation
 }
 \examples{
 data("TravelMode", package = "AER")

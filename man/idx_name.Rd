@@ -5,8 +5,7 @@
 \alias{idx_name.dfidx}
 \alias{idx_name.idx}
 \alias{idx_name.xseries}
-\title{Get the name of the indexes this function extracts the name of the
-indexes}
+\title{Get the names of the indexes}
 \usage{
 idx_name(x, n = 1, m = NULL)
 
@@ -30,8 +29,8 @@ of the \code{idx} column in the \code{dfidx} object, otherwise, a
 character of length 1
 }
 \description{
-Get the name of the indexes this function extracts the name of the
-indexes
+This function extract the names of the indexes or the name of a
+specific index
 }
 \examples{
 data("JapaneseFDI", package = "mlogit")

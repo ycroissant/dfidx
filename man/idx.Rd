@@ -31,12 +31,13 @@ method}
 \item{...}{further arguments (for now unused)}
 }
 \value{
-a \code{data.frame} containing the indexes
+a \code{data.frame} containing the indexes or a series if a
+specific index is selected
 }
 \description{
-the index of a dfidx is a data.frame containing the different
+The index of a \code{dfidx} is a dat .frame containing the different
 series which define the two indexes (with possibly a nesting
-structure). It is stored as "sticky" data.frame column of the
+structure). It is stored as a "sticky" data.frame column of the
 data.frame and is also inherited by series (of class \code{'xseries'})
 which are extracted from a \code{dfidx}.
 }

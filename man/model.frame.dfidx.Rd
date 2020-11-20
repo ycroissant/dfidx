@@ -35,6 +35,10 @@ has to be balanced or not}
 
 \item{object}{a dfidx object}
 }
+\value{
+a \code{dfidx} object for the \code{model.frame} method and a matrix
+for the \code{model.matrix} method.
+}
 \description{
 Specific model.frame/matrix are provided for dfidx objects. This
 leads to an unusual order of arguments compared to the

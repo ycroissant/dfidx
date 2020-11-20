@@ -2,9 +2,7 @@
 % Please edit documentation in R/dfidx.R
 \name{dfidx}
 \alias{dfidx}
-\title{data frames for which observations are defined by two (potentialy
-nested) indexes and for which series have thefore a natural tabular
-representation}
+\title{Data frames with indexes}
 \usage{
 dfidx(
   data,
@@ -39,7 +37,7 @@ from the data.frame as stand alone series}
 \code{c("dfidx_pkg", "dfidx")} which enables to write specific
 classes}
 
-\item{fancy.row.names}{dd}
+\item{fancy.row.names}{if \code{TRUE}, fancy row names are computed}
 
 \item{subset}{a logical which defines a subset of rows to return}
 
@@ -69,7 +67,8 @@ nested) indexes and for which series have thefore a natural tabular
 representation
 }
 \details{
-des details
+Indexes are stored as a \code{data.frame} column in the
+resulting \code{dfidx} object
 }
 \examples{
 

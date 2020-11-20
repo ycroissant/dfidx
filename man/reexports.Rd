@@ -19,6 +19,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{dplyr}{\code{\link[dplyr]{\%>\%}}, \code{\link[dplyr]{arrange}}, \code{\link[dplyr]{as_tibble}}, \code{\link[dplyr]{filter}}, \code{\link[dplyr]{mutate}}, \code{\link[dplyr]{pull}}, \code{\link[dplyr]{select}}, \code{\link[dplyr]{slice}}, \code{\link[dplyr]{transmute}}}
+  \item{dplyr}{\code{\link[dplyr:reexports]{\%>\%}}, \code{\link[dplyr]{arrange}}, \code{\link[dplyr:reexports]{as_tibble}}, \code{\link[dplyr]{filter}}, \code{\link[dplyr]{mutate}}, \code{\link[dplyr]{pull}}, \code{\link[dplyr]{select}}, \code{\link[dplyr]{slice}}, \code{\link[dplyr:mutate]{transmute}}}
 }}
 

@@ -38,31 +38,38 @@
 \method{mean}{dfidx}(x, ...)
 }
 \arguments{
-\item{x}{\code{dfidx}}
+\item{x, object}{a \code{dfidx} object}
 
 \item{i}{the row index}
 
 \item{j}{the column index}
 
-\item{drop}{dsd}
+\item{drop}{if \code{TRUE} a vector is returned if the result is a one
+column \code{data.frame}}
 
-\item{row.names, optional}{arguments of the generic as.data.frame,
-not used}
+\item{row.names, optional}{arguments of the generic \code{as.data.frame}
+method, not used}
 
 \item{...}{further arguments}
 
 \item{n}{the number of rows for the print method}
 
-\item{y}{dsds}
+\item{y}{the name or the position of the series one wishes to
+extract}
 
-\item{object}{dssds}
-
-\item{value}{dssd}
+\item{value}{the value for the replacement method}
+}
+\value{
+\code{as.data.frame} and \code{mean} return a \code{data.frame}, \code{[[} and
+\code{$} a vector, \code{[} either a \code{dfidx} or a vector, \verb{$<-}
+and \verb{[[<-} modify the values of an existing column or create a
+new column of a \code{dfidx} object, \code{print} is called for its side
+effect
 }
 \description{
-a \code{dfidx} is a \code{data.frame} with a "sticky" data.frame column
+A \code{dfidx} is a \code{data.frame} with a "sticky" data.frame column
 which contains the indexes. Specific methods of functions that
-extract lines and/or columns of a \code{data.frame} are provided
+extract lines and/or columns of a \code{data.frame} are provided.
 }
 \examples{
 data("TravelMode", package = "AER")

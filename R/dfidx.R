@@ -245,8 +245,14 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
         alt.name <- idnames[2]
         if (! is.null(varying)){
             varying <- eval_arg(varying)
+            totibble <- FALSE
+            if (inherits(data, "tbl")){
+                data <- as.data.frame(data)
+                totibble <- TRUE
+            }
             data <- reshape(data, varying = varying, direction = "long", sep = sep,
                             timevar = alt.name, idvar = chid.name, ids = chid.var, ...)
+            if (totibble) data <- as_tibble(data)
         }
         else{
             id.names <- as.numeric(rownames(data))
@@ -351,10 +357,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                                if (as.factor[1]   & ! is.factor(z)) z <- as.factor(z)
                                if (! as.factor[1] &   is.factor(z)){
                                    z <- as.character(z)
-                                   op <- options()
-                                   options(warn = -1)
                                    znum <- as.numeric(z)
-                                   options(op)
                                    if (! any(is.na(znum))){
                                        z <- znum
                                        zint <- is.wholenumber(z)
@@ -417,8 +420,8 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
         # if the choice argument is set, coerce it to a boolean
         if (is.null(data[[choice]]))
             # stop if it not exists
-            stop(cat(paste("variable", choice, "doesn't exist\n")))
-        if (! is.logical(data[[choice]])){
+            stop(paste("variable", choice, "doesn't exist"))
+            if (! is.logical(data[[choice]])){
             if (! is.factor(data[[choice]])){
                 data[[choice]] <- factor(data[[choice]])
             }
@@ -668,6 +671,11 @@ idx_name.xseries <- function(x, n = NULL, m = NULL){
 #' @param ... further arguments
 #' @export
 #' @author Yves Croissant
+#' @return `as.data.frame` and `mean` return a `data.frame`, `[[` and
+#'     `$` a vector, `[` either a `dfidx` or a vector, `$<-`
+#'     and `[[<-` modify the values of an existing column or create a
+#'     new column of a `dfidx` object, `print` is called for its side
+#'     effect
 #' @examples
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
@@ -1155,8 +1163,11 @@ model.matrix.dfidx <- function(object, ..., lhs = NULL, rhs = 1, dot = "separate
 #' identical(TM, TM3)
 unfold_idx <- function(x){
     .idx <- idx(x)
+    print(x)
     .terms <- attr(x, "terms")
-    x <- x[, - match("idx", names(x))]
+    # Liming Wang 26 oct 2020, bug for intercept only models
+    #    x <- x[, - match("idx", names(x))]
+    x <- x[, setdiff(names(x), c('idx')), drop = FALSE]
     K <- length(x)
     x <- cbind(x, .idx)
     structure(x, ids = data.frame(names = names(x)[(K + 1):(K + length(.idx))],
