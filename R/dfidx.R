@@ -1163,7 +1163,7 @@ model.matrix.dfidx <- function(object, ..., lhs = NULL, rhs = 1, dot = "separate
 #' identical(TM, TM3)
 unfold_idx <- function(x){
     .idx <- idx(x)
-    print(x)
+#    print(x)
     .terms <- attr(x, "terms")
     # Liming Wang 26 oct 2020, bug for intercept only models
     #    x <- x[, - match("idx", names(x))]
