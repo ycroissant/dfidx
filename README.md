@@ -10,16 +10,7 @@ for `R`'s extractors and for some of `dplyr`'s verbs.
 
 ## Installation
 
-`dfidx` is on `CRAN`. Use\ :
-
-
-```{r eval = FALSE}
-install.packages("dfidx")
-```
+`dfidx` is on `CRAN`. Use\ : `install.packages("dfidx")`.
 
 To install the developping version, use\ :
-
-```{r, eval = FALSE}
-install.packages("devtools")
-remotes::install_github("ycroissant/dfidx")
-```
+`remotes::install_github("ycroissant/dfidx")`.
