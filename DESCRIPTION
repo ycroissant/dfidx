@@ -1,6 +1,6 @@
 Package: dfidx
-Version: 0.0-4
-Date: 2021-02-02
+Version: 0.0-5
+Date: 2022-06-26
 Title: Indexed Data Frames
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 2.10)
@@ -10,6 +10,6 @@ Description: Provides extended data frames, with a special data frame column whi
 License: GPL (>=2)
 URL: https://cran.r-project.org/package=dfidx
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8

@@ -34,7 +34,7 @@
 #' @importFrom stats reshape as.formula formula terms update relevel
 #' @author Yves Croissant
 #' @examples
-#'
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #'
 #' # the first two columns contain the index
@@ -67,18 +67,20 @@
 #'
 #' TM5b <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"),
 #' levels = c("air", "train", "bus", "car"))
-#'
+#' }
+#' 
 #' # Nesting structure for one of the index
-#'
+#' if (requireNamespace("mlogit")){
 #' data("JapaneseFDI", package = "mlogit")
 #' JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
 #' JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
 #' idnames = c("japf", "iso80"))
-#'
+#' }
 #' # Data in wide format
-#'
+#' if (requireNamespace("mlogit")){
 #' data("Fishing", package = "mlogit")
 #' Fi <- dfidx(Fishing, shape = "wide", varying = 2:9, idnames = c("chid", "alt"))
+#' }
 dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = NULL,
                   fancy.row.names = FALSE, subset = NULL,
                   idnames = NULL, shape = c("long", "wide"), choice = NULL,
@@ -536,6 +538,7 @@ mymlogit2rank <- function(x, choicename, ...){
 #' @rdname idx
 #' @export
 #' @examples
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #' TM1 <- dfidx(TravelMode)
 #' idx(TM1)
@@ -546,6 +549,7 @@ mymlogit2rank <- function(x, choicename, ...){
 #' # get the second index
 #' idx(TM1, 2)
 #' idx(inc, 2)
+#' }
 idx <- function(x, n = NULL, m = NULL) UseMethod("idx")
 
 #' @rdname idx
@@ -605,6 +609,7 @@ format.idx <- function(x, size = 4, ...){
 #' @export
 #' @author Yves Croissant
 #' @examples
+#' if (requireNamespace("mlogit")){
 #' data("JapaneseFDI", package = "mlogit")
 #' JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
 #' JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
@@ -617,6 +622,7 @@ format.idx <- function(x, size = 4, ...){
 #' idx_name(JP1b, 2)
 #' # get the name of the nesting variable for the second index
 #' idx_name(JP1b, 2, 2)
+#' }
 idx_name <- function(x, n = 1, m = NULL)
     UseMethod("idx_name")
 
@@ -677,6 +683,7 @@ idx_name.xseries <- function(x, n = NULL, m = NULL){
 #'     new column of a `dfidx` object, `print` is called for its side
 #'     effect
 #' @examples
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
 #' # extract a series (returns as a xseries object)
@@ -694,7 +701,7 @@ idx_name.xseries <- function(x, n = NULL, m = NULL){
 #' print(TM$income, n = 3)
 #' # a dfidx object can be coerced to a data.frame
 #' head(as.data.frame(TM))
-#' 
+#' }
 "[.dfidx" <- function(x, i, j, drop = TRUE){
     idx.pos <- idx_name(x)
     # add the idx column to the return data.frame if :
@@ -889,6 +896,7 @@ mean.dfidx <- function(x, ...){
 #' @details These methods always return the data frame column that
 #'     contains the indexes and return a `dfidx` object.
 #' @examples
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
 #' select(TM, - wait, - vcost)
@@ -898,6 +906,7 @@ mean.dfidx <- function(x, ...){
 #' filter(TM, income > 35, size <= 2)
 #' pull(TM, income)
 #' slice(TM, c(1:2, 5:7))
+#' }
 NULL
 
 #' @importFrom dplyr as_tibble
@@ -1041,12 +1050,14 @@ select.dfidx <- function(.data, ...){
 #' @export
 #' @author Yves Croissant
 #' @examples
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
 #' mf <- model.frame(TM, choice ~ vcost | income - 1 | travel)
 #' head(model.matrix(mf, rhs = 1))
 #' head(model.matrix(mf, rhs = 2))
 #' head(model.matrix(mf, rhs = 1:3))
+#' }
 model.frame.dfidx <- function(formula, data = NULL, ...,
                               lhs = NULL, rhs = NULL, dot = "previous",
                               alt.subset = NULL, reflevel = NULL,
@@ -1155,12 +1166,14 @@ model.matrix.dfidx <- function(object, ..., lhs = NULL, rhs = 1, dot = "separate
 #' @export
 #' @author Yves Croissant
 #' @examples
+#' if (requireNamespace("AER")){
 #' data("TravelMode", package = "AER")
 #' TM <- dfidx(TravelMode)
 #' TM2 <- unfold_idx(TM)
 #' attr(TM2, "ids")
 #' TM3 <- fold_idx(TM2)
 #' identical(TM, TM3)
+#' }
 unfold_idx <- function(x){
     .idx <- idx(x)
 #    print(x)

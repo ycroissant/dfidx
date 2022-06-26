@@ -72,6 +72,7 @@ which contains the indexes. Specific methods of functions that
 extract lines and/or columns of a \code{data.frame} are provided.
 }
 \examples{
+if (requireNamespace("AER")){
 data("TravelMode", package = "AER")
 TM <- dfidx(TravelMode)
 # extract a series (returns as a xseries object)
@@ -89,7 +90,7 @@ print(idx(TM), n = 3)
 print(TM$income, n = 3)
 # a dfidx object can be coerced to a data.frame
 head(as.data.frame(TM))
-
+}
 }
 \author{
 Yves Croissant

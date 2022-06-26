@@ -46,6 +46,7 @@ idx is defined as a generic with a \code{dfidx} and a \code{xseries}
 method.
 }
 \examples{
+if (requireNamespace("AER")){
 data("TravelMode", package = "AER")
 TM1 <- dfidx(TravelMode)
 idx(TM1)
@@ -56,6 +57,7 @@ idx(TM1, 1)
 # get the second index
 idx(TM1, 2)
 idx(inc, 2)
+}
 }
 \author{
 Yves Croissant

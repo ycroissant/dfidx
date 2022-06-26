@@ -33,6 +33,7 @@ This function extract the names of the indexes or the name of a
 specific index
 }
 \examples{
+if (requireNamespace("mlogit")){
 data("JapaneseFDI", package = "mlogit")
 JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
 JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
@@ -45,6 +46,7 @@ idx_name(JP1b, 1)
 idx_name(JP1b, 2)
 # get the name of the nesting variable for the second index
 idx_name(JP1b, 2, 2)
+}
 }
 \author{
 Yves Croissant

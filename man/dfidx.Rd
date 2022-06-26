@@ -71,7 +71,7 @@ Indexes are stored as a \code{data.frame} column in the
 resulting \code{dfidx} object
 }
 \examples{
-
+if (requireNamespace("AER")){
 data("TravelMode", package = "AER")
 
 # the first two columns contain the index
@@ -104,18 +104,20 @@ TM5 <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"))
 
 TM5b <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"),
 levels = c("air", "train", "bus", "car"))
+}
 
 # Nesting structure for one of the index
-
+if (requireNamespace("mlogit")){
 data("JapaneseFDI", package = "mlogit")
 JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
 JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
 idnames = c("japf", "iso80"))
-
+}
 # Data in wide format
-
+if (requireNamespace("mlogit")){
 data("Fishing", package = "mlogit")
 Fi <- dfidx(Fishing, shape = "wide", varying = 2:9, idnames = c("chid", "alt"))
+}
 }
 \author{
 Yves Croissant

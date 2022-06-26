@@ -48,12 +48,14 @@ model.matrix is a dfidx which should be the result of a call to the
 model.frame method, i.e. it should have a term attribute.
 }
 \examples{
+if (requireNamespace("AER")){
 data("TravelMode", package = "AER")
 TM <- dfidx(TravelMode)
 mf <- model.frame(TM, choice ~ vcost | income - 1 | travel)
 head(model.matrix(mf, rhs = 1))
 head(model.matrix(mf, rhs = 2))
 head(model.matrix(mf, rhs = 1:3))
+}
 }
 \author{
 Yves Croissant

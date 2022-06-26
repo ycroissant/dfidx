@@ -40,6 +40,7 @@ These methods always return the data frame column that
 contains the indexes and return a \code{dfidx} object.
 }
 \examples{
+if (requireNamespace("AER")){
 data("TravelMode", package = "AER")
 TM <- dfidx(TravelMode)
 select(TM, - wait, - vcost)
@@ -49,6 +50,7 @@ arrange(TM, desc(size), income)
 filter(TM, income > 35, size <= 2)
 pull(TM, income)
 slice(TM, c(1:2, 5:7))
+}
 }
 \author{
 Yves Croissant
