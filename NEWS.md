@@ -1,3 +1,7 @@
+# dfidx 0.0-6
+
+* enhanced print method for tibbles
+
 # dfidx 0.0-5
 
 * test of the presence of suggested packages are added in the man

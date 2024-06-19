@@ -1,15 +1,15 @@
 Package: dfidx
-Version: 0.0-5
-Date: 2022-06-26
+Version: 0.0-6
+Date: 2024-06-19
 Title: Indexed Data Frames
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 2.10)
-Imports: dplyr, Formula
+Imports: dplyr, Formula, vctrs, pillar
 Suggests: knitr, rmarkdown, AER, mlogit, plm
 Description: Provides extended data frames, with a special data frame column which contains two indexes, with potentially a nesting structure.
 License: GPL (>=2)
 URL: https://cran.r-project.org/package=dfidx
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
