@@ -26,76 +26,75 @@
 #' @param opposite return the opposite of the series
 #' @param levels the levels for the second index
 #' @param ranked a boolean for ranked data
+#' @param name name of the `idx` column
+#' @param position position of the `idx` column
 #' @param ... further arguments
 #' @details Indexes are stored as a `data.frame` column in the
 #'     resulting `dfidx` object
 #' @return an object of class `"dfidx"`
 #' @export
 #' @importFrom stats reshape as.formula formula terms update relevel
+#' @importFrom dplyr relocate
+#' @importFrom tidyselect any_of
 #' @author Yves Croissant
 #' @examples
-#' if (requireNamespace("AER")){
-#' data("TravelMode", package = "AER")
-#'
 #' # the first two columns contain the index
-#'
-#' TM1 <- dfidx(TravelMode)
+#' mn <- dfidx(munnell)
 #'
 #' # explicitely indicate the two indexes using either a vector or a
 #' # list of two characters
-#' 
-#' TM2 <- dfidx(TravelMode, idx = c("individual", "mode"))
-#'
-#' TM3 <- dfidx(TravelMode, idx = list("individual", "mode"))
+#' mn <- dfidx(munnell, idx = c("state", "year"))
+#' mn <- dfidx(munnell, idx = list("state", "year"))
 #'
 #' # rename one or both indexes
-#'
-#' TM3b <- dfidx(TravelMode, idnames = c(NA, "trmode"))
+#' mn <- dfidx(munnell, idnames = c(NA, "period"))
 #'
 #' # for balanced data (with observations ordered by the first, then
 #' # by the second index
 #'
 #' # use the name of the first index
-#'
-#' TM4 <- dfidx(TravelMode, idx = "individual", idnames = c("individual", "mode"))
+#' mn <- dfidx(munnell, idx = "state", idnames = c("state", "year"))
 #'
 #' # or an integer equal to the cardinal of the first index
-#'
-#' TM5 <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"))
+#' mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"))
 #'
 #' # Indicate the values of the second index using the levels argument
-#'
-#' TM5b <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"),
-#' levels = c("air", "train", "bus", "car"))
-#' }
+#' mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"),
+#'             levels = 1970:1986)
 #' 
 #' # Nesting structure for one of the index
-#' if (requireNamespace("mlogit")){
-#' data("JapaneseFDI", package = "mlogit")
-#' JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
-#' JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
-#' idnames = c("japf", "iso80"))
-#' }
+#' mn <- dfidx(munnell, idx = c(region = "state", president = "year"))
+#' 
 #' # Data in wide format
-#' if (requireNamespace("mlogit")){
-#' data("Fishing", package = "mlogit")
-#' Fi <- dfidx(Fishing, shape = "wide", varying = 2:9, idnames = c("chid", "alt"))
-#' }
+#' mn <- dfidx(munnell_wide, idx = c(region = "state"),
+#'             varying = 3:36, sep = "_", idnames = c(NA, "year"))
+#'
+#' # Customize the name and the position of the `idx` column
+#' #dfidx(munnell, position = 3, name = "index")
 dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = NULL,
                   fancy.row.names = FALSE, subset = NULL,
                   idnames = NULL, shape = c("long", "wide"), choice = NULL,
-                  varying = NULL, sep = ".", opposite = NULL, levels = NULL, ranked = FALSE, ...){
+                  varying = NULL, sep = ".", opposite = NULL, levels = NULL, ranked = FALSE,
+                  name, position, ...){
                   # the default class of the resulting data.frame is dfidx
                   # if (is.null(clsgdata)) clsgdata <- "dfidx"
                   # if clseries is not NA, it is xseries if clseries is NULL or
                   # c(clseries, "xseries") otherwise ; if clseries is NA, it is set
                   # to NULL
+    if (! is.list(idx) & ! is.null(names(idx))){
+        idx <- lapply(1:length(idx), function(i){
+            nms_i <- names(idx)[i]
+            if (nchar(nms_i) == 0) idx[[i]]
+            else c(idx[[i]], names(idx)[i])
+        })
+    }
     
+    .as.factor <- as.factor
     shape <- match.arg(shape)
     if (! is.null(varying)) shape <- "wide"
 
     cldata <- match.call(expand.dots = TRUE)
-    
+
     # Idea borrowed from plm: if no index are provided and the data
     # set is in long format, they are the first two columns of the
     # data.frame
@@ -127,9 +126,9 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     # 1. Some pathological cases
     # ------------------------------------
 
-    # a/ idx is NULL and the levels argument is set It supposes that
-    # we have a balanced data and we fill the idx argument with the
-    # cardinal of the first index
+    # a/ idx is NULL and the levels argument is set, it is assumed
+    # that we have a balanced data and we fill the idx argument with
+    # the cardinal of the first index
     
     if (shape == "long" & is.null(idx) & ! is.null(levels)){
         L <- length(levels)
@@ -346,18 +345,18 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     # 5/ Set the class of the indexes
     # -------------------------------
     # coerce or not index to factors
-    if (is.null(as.factor)) as.factor <- c(FALSE, TRUE)
-    if (! is.logical(as.factor)) stop("the as.factor argument should be logical")
+    if (is.null(.as.factor)) .as.factor <- c(FALSE, TRUE)
+    if (! is.logical(.as.factor)) stop("the as.factor argument should be logical")
     else{
-        if (! length(as.factor) %in% 1:2) stop("the length of the as.factor argument should be 1 or 2")
-        if (length(as.factor) == 1) as.factor <- rep(as.factor, 2)
+        if (! length(.as.factor) %in% 1:2) stop("the length of the as.factor argument should be 1 or 2")
+        if (length(.as.factor) == 1) .as.factor <- rep(.as.factor, 2)
     }
     # coerce the indexes as factors if necessary
     is.wholenumber <- function(x, tol = .Machine$double.eps ^ 0.5)  abs(x - round(x)) < tol
     data[posid1] <- lapply(data[posid1],
                            function(z){
-                               if (as.factor[1]   & ! is.factor(z)) z <- as.factor(z)
-                               if (! as.factor[1] &   is.factor(z)){
+                               if (.as.factor[1] & ! is.factor(z)) z <- as.factor(z)  # as.factor[1]
+                               if (! .as.factor[1] &  is.factor(z)){
                                    z <- as.character(z)
                                    znum <- as.numeric(z)
                                    if (! any(is.na(znum))){
@@ -368,14 +367,15 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                                }
                                z
                            })
+
     if (! is.null(posid2)){
         data[posid2] <- lapply(data[posid2],
                                function(z){
-                                   if (as.factor[2]   & ! is.factor(z)){
+                                   if (.as.factor[2]   & ! is.factor(z)){
                                        if (is.null(levels)) z <- factor(z)
                                        else z <- factor(z, levels = levels)
                                    }
-                                   if (! as.factor[2] & is.factor(z)) z <- as.character(z)
+                                   if (! .as.factor[2] & is.factor(z)) z <- as.character(z)
                                    z
                                })
     }
@@ -402,7 +402,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
             data[[idnames[[2]]]] <- rep(levels, length(uniqueid))
         }
         else data[[idnames[2]]] <- Reduce("c", sapply(Tis, seq_len))
-        if (as.factor[2]){
+        if (.as.factor[2]){
             if (is.null(levels)) data[[idnames[2]]] <- factor(data[[idnames[2]]])
             else data[[idnames[2]]] <- factor(data[[idnames[2]]], levels = levels)
         }
@@ -462,9 +462,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
         if (ncol(data) == 0L) warning(paste("after dropping of index variables, ",
                                             "the dfidx contains 0 columns"))
     }
-
     if (fancy.row.names) rownames(data) <- paste(idx[[posids[1]]], idx[[posids[2]]], sep = "-")
-
     
     # --------------------------
     # 10/ Take the opposite of the required series
@@ -480,11 +478,20 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
 
     if (! is.null(pkg)) clsgdata <- c(paste("dfidx_", pkg, sep = ""), "dfidx")
     else clsgdata <- "dfidx"
-    class(idx) <- c("idx", "data.frame")
+    class(idx) <- c("idx", class(idx))
     rownames(data) <- rownames(idx) <- NULL
     # drop the unused levels for the second index
     idx[[idx_name(idx, 2)]] <- idx[[idx_name(idx, 2)]][drop = TRUE]
-    data$idx <- idx
+    # set idx name and position
+    if (missing(name)) .name <- "idx" else .name <- name
+    if (missing(position)) .position <- ifelse(inherits(data, "tbl_df"), 1, length(data) + 1) else .position <- position
+    K <- length(data)
+    if (.position > K + 1) stop(cat("position should be <= ", K + 1, "\n"))
+    .before <- seq_len(.position - 1)
+    .after <- .position:K
+#    print(head(data, 3));stop()
+    data[[.name]] <- idx
+    data <- data %>% relocate(any_of(.name), .before = any_of(.position))
     data <- structure(data, class = c(clsgdata, class(data)), clseries = clseries, choice = choice)
     if (ranked) data <- mymlogit2rank(data, choicename = choice)
     data

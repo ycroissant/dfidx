@@ -46,18 +46,14 @@ idx is defined as a generic with a \code{dfidx} and a \code{xseries}
 method.
 }
 \examples{
-if (requireNamespace("AER")){
-data("TravelMode", package = "AER")
-TM1 <- dfidx(TravelMode)
-idx(TM1)
-inc <- TM1$income
-idx(inc)
+mn <- dfidx(munnell, idx = c(region = "state", president = "year"))
+idx(mn)
+gsp <- mn$gsp
+idx(gsp)
 # get the first index
-idx(TM1, 1)
-# get the second index
-idx(TM1, 2)
-idx(inc, 2)
-}
+idx(mn, 1)
+# get the nesting variable of the first index
+idx(mn, 1, 2)
 }
 \author{
 Yves Croissant

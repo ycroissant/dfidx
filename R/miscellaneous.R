@@ -22,18 +22,14 @@
 #' @rdname idx
 #' @export
 #' @examples
-#' if (requireNamespace("AER")){
-#' data("TravelMode", package = "AER")
-#' TM1 <- dfidx(TravelMode)
-#' idx(TM1)
-#' inc <- TM1$income
-#' idx(inc)
+#' mn <- dfidx(munnell, idx = c(region = "state", president = "year"))
+#' idx(mn)
+#' gsp <- mn$gsp
+#' idx(gsp)
 #' # get the first index
-#' idx(TM1, 1)
-#' # get the second index
-#' idx(TM1, 2)
-#' idx(inc, 2)
-#' }
+#' idx(mn, 1)
+#' # get the nesting variable of the first index
+#' idx(mn, 1, 2)
 idx <- function(x, n = NULL, m = NULL) UseMethod("idx")
 
 #' @rdname idx
@@ -93,20 +89,15 @@ format.idx <- function(x, size = 4, ...){
 #' @export
 #' @author Yves Croissant
 #' @examples
-#' if (requireNamespace("mlogit")){
-#' data("JapaneseFDI", package = "mlogit")
-#' JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
-#' JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
-#' idnames = c("japf", "iso80"))
+#' mn <- dfidx(munnell, idx = c(region = "state", president = "year"))
 #' # get the position of the idx column
-#' idx_name(JP1b)
+#' idx_name(mn)
 #' # get the name of the first index
-#' idx_name(JP1b, 1)
+#' idx_name(mn, 1)
 #' # get the name of the second index
-#' idx_name(JP1b, 2)
+#' idx_name(mn, 2)
 #' # get the name of the nesting variable for the second index
-#' idx_name(JP1b, 2, 2)
-#' }
+#' idx_name(mn, 2, 2)
 idx_name <- function(x, n = 1, m = NULL)
     UseMethod("idx_name")
 
@@ -133,11 +124,35 @@ idx_name.idx <- function(x, n = NULL, m = NULL){
     x
 }
 
+## idx_name.data.frame <- function(x, n = NULL, m = NULL){
+##     idxcols <- sapply(x, function(i) "idx" %in% class(i))
+##     if (sum(idxcols) > 1) stop("More than one idx column")
+##     if (is.null(n)) which(idxcols)
+##     else idx_name(idx(x), n = n, m = m)
+## }
+
 #' @rdname idx_name
 #' @export
 idx_name.xseries <- function(x, n = NULL, m = NULL){
     .idx <- idx(x)
     idx_name(.idx, n = n, m = m)
+}
+
+
+make_idx <- function(x){
+    if (inherits(x, "dfidx")) x <- idx(x)
+    if (! inherits(x, "idx"))
+        stop("the argument should be a dfidx or a idx object")
+    .names <- names(x)
+    .ids <- attr(x, "ids")
+    names(.ids) <- .names
+    ones <- sum(.ids == 1)
+    twos <- sum(.ids == 2)
+    if (ones == 1) .ids <- c(.ids[1], 1, .ids[- 1])
+    if (twos == 1) .ids <- c(.ids[1:3], 2)
+    .idx <- names(.ids)[c(1, 3)]
+    names(.idx) <- names(.ids)[c(2, 4)]
+    .idx
 }
 
 
@@ -154,40 +169,67 @@ idx_name.xseries <- function(x, n = NULL, m = NULL){
 #' @export
 #' @author Yves Croissant
 #' @examples
-#' if (requireNamespace("AER")){
-#' data("TravelMode", package = "AER")
-#' TM <- dfidx(TravelMode)
-#' TM2 <- unfold_idx(TM)
-#' attr(TM2, "ids")
-#' TM3 <- fold_idx(TM2)
-#' identical(TM, TM3)
-#' }
+#' mn <- dfidx(munnell, idx = c(region = "state", "year"), position = 3, name = "index")
+#' mn2 <- unfold_idx(mn)
+#' attr(mn, "ids")
+#' mn3 <- fold_idx(mn2)
+#' identical(mn, mn3)
 unfold_idx <- function(x){
+    .is_tibble <- inherits(x, "tbl_df")
+    .idx_vector <- make_idx(x)
     .idx <- idx(x)
-#    print(x)
+    .idx_name <- idx_name(x)
+    class(x) <- setdiff(class(x), "dfidx")
     .terms <- attr(x, "terms")
     # Liming Wang 26 oct 2020, bug for intercept only models
     #    x <- x[, - match("idx", names(x))]
-    x <- x[, setdiff(names(x), c('idx')), drop = FALSE]
+    x <- x[, setdiff(names(x), names(.idx_name)), drop = FALSE]
     K <- length(x)
-    x <- cbind(x, .idx)
-    structure(x, ids = data.frame(names = names(x)[(K + 1):(K + length(.idx))],
-                                  ids = attr(.idx, "ids"),
-                                  stringsAsFactors = FALSE),
+    if (.is_tibble) x <- bind_cols(x, .idx) else x <- cbind(x, .idx)
+    structure(x,
+              idx_vector = .idx_vector,
+#              name = .idx_name,
               terms = .terms)
 }
+
+## unfold_idx <- function(x){
+##     .idx <- idx(x)
+##     .idx_name <- idx_name(x)
+##     class(x) <- setdiff(class(x), "dfidx")
+##     .terms <- attr(x, "terms")
+##     # Liming Wang 26 oct 2020, bug for intercept only models
+##     #    x <- x[, - match("idx", names(x))]
+##     x <- x[, setdiff(names(x), names(.idx_name)), drop = FALSE]
+##     K <- length(x)
+##     x <- bind_cols(x, .idx)
+##     structure(x, ids = data.frame(names = names(x)[(K + 1):(K + length(.idx))],
+##                                   ids = attr(.idx, "ids"),
+##                                   stringsAsFactors = FALSE),
+##               terms = .terms)
+## }
 
 #' @rdname unfold_idx
 #' @export
 fold_idx <- function(x, pkg = NULL){
-    .terms <- attr(x, "terms")
-    .choice <- attr(x, "choice")
-    .idx <- vector(mode = "list", length = 2)
-    for (i in 1:2) .idx[[i]] <- attr(x, "ids")[attr(x, "ids")$ids == i, "names"]
-    x <- dfidx(x, .idx, pkg = pkg)
-    attributes(x) <- c(attributes(x), terms = .terms, choice = .choice)
+    .idx_vector <- attr(x, "idx_vector")
+#    .pos <- attr(x, "name")
+#    .name <- names(attr(x, "name"))
+    x <- dfidx(x, idx = attr(x, "idx_vector"), pkg = pkg)#, position = .pos, name = .name)
+    .attr <- attributes(x)
+    .attr <- .attr[setdiff(names(.attr), c("idx_vector", "name"))]
+    attributes(x) <- .attr
     x
 }
+
+## fold_idx <- function(x, pkg = NULL){
+##     .terms <- attr(x, "terms")
+##     .choice <- attr(x, "choice")
+##     .idx <- vector(mode = "list", length = 2)
+##     for (i in 1:2) .idx[[i]] <- attr(x, "ids")[attr(x, "ids")$ids == i, "names"]
+##     x <- dfidx(x, .idx, pkg = pkg)
+##     attributes(x) <- c(attributes(x), terms = .terms, choice = .choice)
+##     x
+## }
 
 # update the formula in order to add the names of the index series
 add_idx <- function(formula, data){

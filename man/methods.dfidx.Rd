@@ -15,7 +15,7 @@
 \alias{mean.dfidx}
 \title{Methods for dfidx}
 \usage{
-\method{[}{dfidx}(x, i, j, drop = TRUE)
+\method{[}{dfidx}(x, i, j, drop)
 
 \method{as.data.frame}{dfidx}(x, row.names = NULL, optional = FALSE, ...)
 
@@ -72,25 +72,22 @@ which contains the indexes. Specific methods of functions that
 extract lines and/or columns of a \code{data.frame} are provided.
 }
 \examples{
-if (requireNamespace("AER")){
-data("TravelMode", package = "AER")
-TM <- dfidx(TravelMode)
+mn <- dfidx(munnell)
 # extract a series (returns as a xseries object)
-TM$wait
+mn$gsp
 # or
-TM[["wait"]]
+mn[["gsp"]]
 # extract a subset of series (returns as a dfidx object)
-TM[c("wait", "income")]
+mn[c("gsp", "unemp")]
 # extract a subset of rows and columns
-TM[TM$income > 30, c("wait", "income")]
+mn[mn$unemp > 10, c("utilities", "water")]
 # dfidx, idx and xseries have print methods as (like tibbles), a n
 # argument
-print(TM, n = 3)
-print(idx(TM), n = 3)
-print(TM$income, n = 3)
+print(mn, n = 3)
+print(idx(mn), n = 3)
+print(mn$gsp, n = 3)
 # a dfidx object can be coerced to a data.frame
-head(as.data.frame(TM))
-}
+head(as.data.frame(mn))
 }
 \author{
 Yves Croissant

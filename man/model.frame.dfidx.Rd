@@ -3,6 +3,7 @@
 \name{model.frame.dfidx}
 \alias{model.frame.dfidx}
 \alias{model.matrix.dfidx}
+\alias{print.dfidx_matrix}
 \title{model.frame/matrix for dfidx objects}
 \usage{
 \method{model.frame}{dfidx}(
@@ -18,6 +19,8 @@
 )
 
 \method{model.matrix}{dfidx}(object, ..., lhs = NULL, rhs = 1, dot = "separate")
+
+\method{print}{dfidx_matrix}(x, ..., n = 10L)
 }
 \arguments{
 \item{formula}{a \code{dfidx}}
@@ -34,6 +37,10 @@
 has to be balanced or not}
 
 \item{object}{a dfidx object}
+
+\item{x}{a model matrix}
+
+\item{n}{the number of lines to print}
 }
 \value{
 a \code{dfidx} object for the \code{model.frame} method and a matrix
@@ -48,14 +55,11 @@ model.matrix is a dfidx which should be the result of a call to the
 model.frame method, i.e. it should have a term attribute.
 }
 \examples{
-if (requireNamespace("AER")){
-data("TravelMode", package = "AER")
-TM <- dfidx(TravelMode)
-mf <- model.frame(TM, choice ~ vcost | income - 1 | travel)
-head(model.matrix(mf, rhs = 1))
-head(model.matrix(mf, rhs = 2))
-head(model.matrix(mf, rhs = 1:3))
-}
+mn <- dfidx(munnell)
+mf <- model.frame(mn, gsp ~ privatecap | publiccap + utilities | unemp + labor)
+model.matrix(mf, rhs = 1)
+model.matrix(mf, rhs = 2)
+model.matrix(mf, rhs = 1:3)
 }
 \author{
 Yves Croissant

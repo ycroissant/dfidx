@@ -25,14 +25,11 @@ columns, remove the \code{idx} column and return a data.frame, with an
 indexes. \code{fold_idx} performs the opposite operation
 }
 \examples{
-if (requireNamespace("AER")){
-data("TravelMode", package = "AER")
-TM <- dfidx(TravelMode)
-TM2 <- unfold_idx(TM)
-attr(TM2, "ids")
-TM3 <- fold_idx(TM2)
-identical(TM, TM3)
-}
+mn <- dfidx(munnell, idx = c(region = "state", "year"), position = 3, name = "index")
+mn2 <- unfold_idx(mn)
+attr(mn, "ids")
+mn3 <- fold_idx(mn2)
+identical(mn, mn3)
 }
 \author{
 Yves Croissant

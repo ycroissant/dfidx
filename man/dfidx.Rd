@@ -20,6 +20,8 @@ dfidx(
   opposite = NULL,
   levels = NULL,
   ranked = FALSE,
+  name,
+  position,
   ...
 )
 }
@@ -56,6 +58,10 @@ arguments are passed to reshape}
 
 \item{ranked}{a boolean for ranked data}
 
+\item{name}{name of the \code{idx} column}
+
+\item{position}{position of the \code{idx} column}
+
 \item{...}{further arguments}
 }
 \value{
@@ -71,53 +77,39 @@ Indexes are stored as a \code{data.frame} column in the
 resulting \code{dfidx} object
 }
 \examples{
-if (requireNamespace("AER")){
-data("TravelMode", package = "AER")
-
 # the first two columns contain the index
-
-TM1 <- dfidx(TravelMode)
+mn <- dfidx(munnell)
 
 # explicitely indicate the two indexes using either a vector or a
 # list of two characters
-
-TM2 <- dfidx(TravelMode, idx = c("individual", "mode"))
-
-TM3 <- dfidx(TravelMode, idx = list("individual", "mode"))
+mn <- dfidx(munnell, idx = c("state", "year"))
+mn <- dfidx(munnell, idx = list("state", "year"))
 
 # rename one or both indexes
-
-TM3b <- dfidx(TravelMode, idnames = c(NA, "trmode"))
+mn <- dfidx(munnell, idnames = c(NA, "period"))
 
 # for balanced data (with observations ordered by the first, then
 # by the second index
 
 # use the name of the first index
-
-TM4 <- dfidx(TravelMode, idx = "individual", idnames = c("individual", "mode"))
+mn <- dfidx(munnell, idx = "state", idnames = c("state", "year"))
 
 # or an integer equal to the cardinal of the first index
-
-TM5 <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"))
+mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"))
 
 # Indicate the values of the second index using the levels argument
-
-TM5b <- dfidx(TravelMode, idx = 210, idnames = c("individual", "mode"),
-levels = c("air", "train", "bus", "car"))
-}
+mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"),
+            levels = 1970:1986)
 
 # Nesting structure for one of the index
-if (requireNamespace("mlogit")){
-data("JapaneseFDI", package = "mlogit")
-JapaneseFDI <- dplyr::select(JapaneseFDI, 1:8)
-JP1b <- dfidx(JapaneseFDI, idx = list("firm", c("region", "country")),
-idnames = c("japf", "iso80"))
-}
+mn <- dfidx(munnell, idx = c(region = "state", president = "year"))
+
 # Data in wide format
-if (requireNamespace("mlogit")){
-data("Fishing", package = "mlogit")
-Fi <- dfidx(Fishing, shape = "wide", varying = 2:9, idnames = c("chid", "alt"))
-}
+mn <- dfidx(munnell_wide, idx = c(region = "state"),
+            varying = 3:36, sep = "_", idnames = c(NA, "year"))
+
+# Customize the name and the position of the `idx` column
+#dfidx(munnell, position = 3, name = "index")
 }
 \author{
 Yves Croissant

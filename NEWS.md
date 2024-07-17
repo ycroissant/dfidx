@@ -1,6 +1,10 @@
 # dfidx 0.0-6
 
+* new named vectors interface for defining the indexes
+
 * enhanced print method for tibbles
+
+* a new quarto vignette
 
 # dfidx 0.0-5
 

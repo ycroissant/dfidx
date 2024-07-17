@@ -11,17 +11,14 @@
 #' @details These methods always return the data frame column that
 #'     contains the indexes and return a `dfidx` object.
 #' @examples
-#' if (requireNamespace("AER")){
-#' data("TravelMode", package = "AER")
-#' TM <- dfidx(TravelMode)
-#' select(TM, - wait, - vcost)
-#' mutate(TM, inc2  = income ^ 2, linc = log(income))
-#' transmute(TM, inc2  = income ^ 2, linc = log(income))
-#' arrange(TM, desc(size), income)
-#' filter(TM, income > 35, size <= 2)
-#' pull(TM, income)
-#' slice(TM, c(1:2, 5:7))
-#' }
+#' mn <- dfidx(munnell)
+#' select(mn, - gsp, - water)
+#' mutate(mn, lgsp = log(gsp), lgsp2 = lgsp ^ 2)
+#' transmute(mn, lgsp = log(gsp), lgsp2 = lgsp ^ 2)
+#' arrange(mn, desc(unemp), labor)
+#' filter(mn, unemp > 10)
+#' pull(mn, gsp)
+#' slice(mn, c(1:2, 5:7))
 NULL
 
 #' @importFrom dplyr as_tibble
@@ -141,3 +138,5 @@ select.dfidx <- function(.data, ...){
     attributes(x) <- attrs
     x
 }
+
+

@@ -25,53 +25,76 @@
 #'     new column of a `dfidx` object, `print` is called for its side
 #'     effect
 #' @importFrom pillar new_pillar_shaft_simple tbl_sum pillar_shaft
-#' @importFrom vctrs new_rcrd field
+#' @importFrom vctrs new_rcrd field vec_ptype_abbr
 #' @importFrom dplyr bind_cols
 #' @examples
-#' if (requireNamespace("AER")){
-#' data("TravelMode", package = "AER")
-#' TM <- dfidx(TravelMode)
+#' mn <- dfidx(munnell)
 #' # extract a series (returns as a xseries object)
-#' TM$wait
+#' mn$gsp
 #' # or
-#' TM[["wait"]]
+#' mn[["gsp"]]
 #' # extract a subset of series (returns as a dfidx object)
-#' TM[c("wait", "income")]
+#' mn[c("gsp", "unemp")]
 #' # extract a subset of rows and columns
-#' TM[TM$income > 30, c("wait", "income")]
+#' mn[mn$unemp > 10, c("utilities", "water")]
 #' # dfidx, idx and xseries have print methods as (like tibbles), a n
 #' # argument
-#' print(TM, n = 3)
-#' print(idx(TM), n = 3)
-#' print(TM$income, n = 3)
+#' print(mn, n = 3)
+#' print(idx(mn), n = 3)
+#' print(mn$gsp, n = 3)
 #' # a dfidx object can be coerced to a data.frame
-#' head(as.data.frame(TM))
-#' }
-"[.dfidx" <- function(x, i, j, drop = TRUE){
+#' head(as.data.frame(mn))
+"[.dfidx" <- function(x, i, j, drop){
     idx.pos <- idx_name(x)
-    # add the idx column to the return data.frame if :
-    # - j > 1
-    # - j == 1 & drop = FALSE
-#    if (! missing(j) && (length(j) > 1 | ! drop))
-    if (! missing(j) && (! is.logical(j)) && (length(j) > 1 | ! drop))
-        j <- union(j, ifelse(is.numeric(j), as.numeric(idx.pos), names(idx.pos)))
-    class <- class(x)
+    mdrop <- missing(drop)
+    if (mdrop) drop <- ifelse(inherits(x, "tbl_df"), FALSE, TRUE)
     clseries <- attr(x, "clseries")
     idx <- idx(x)
-    mdrop <- missing(drop)
     Narg <- nargs() - ! mdrop
-
-    # use the data.frame method for the dfidx
+    .class <- class(x)
+    class(x) <- setdiff(class(x), "dfidx")
+    # then the data.frame or the tbl_df method we'll be used use the
+    # data.frame method for the dfidx
     if (Narg < 3L){
-        if (any(i < 0) & any(i >0)) stop("negative and positive indexes can't be mixed")
-        if (any(i < 0)){
-            i <- seq_len(length(x))[i]
+        # adata[c("one", "two")], i is a vector of columns always
+        # returns a data frame, even if only one column is selected
+        # for data frames
+        if (is.numeric(i)){
+            if (any(i < 0) & any(i > 0)) stop("negative and positive indexes can't be mixed")
+            if (any(i < 0)) i <- seq_len(length(x))[i]
+            i <- union(i, as.numeric(idx.pos))
         }
-        i <- union(i, ifelse(is.numeric(i), as.numeric(idx.pos), names(idx.pos)))
-        mydata <- `[.data.frame`(x, i)
+        if (is.character(i)){
+            if (any(! i %in% names(x))) stop("unknown column")
+            i <- union(i, names(idx.pos))
+        }
+        if (is.logical(i)){
+            if (length(i) != length(x)) stop("wrong length of the logical vector")
+            i[as.numeric(idx.pos)] <- TRUE
+        }
+        mydata <- `[`(x, i)
     }
     else{
-        mydata <- as.data.frame(x)[i, j, drop = drop]
+        # i selects rows, j columns
+        # add the idx column to the returned data.frame if :
+        # - j > 1
+        # - j == 1 & drop = FALSE
+        if (! missing(j)){
+            if (is.numeric(j)){
+                if (any(j < 0) & any(j > 0)) stop("negative and positive indexes can't be mixed")
+                if (any(j < 0)) j <- seq_len(length(x))[j]
+                if (length(j) > 1 | ! drop) j <- union(j, as.numeric(idx.pos))
+            }
+            if (is.logical(j)){
+                if (length(j) != length(x)) stop("wrong length of the logical vector")
+                if (length(j) > 1 | ! drop) j[as.numeric(idx.pos)] <- TRUE
+            }
+            if (is.character(j)){
+                if (any(! j %in% names(x))) stop("unknown column")
+                if (length(j) > 1 | ! drop) j <- union(j, names(idx.pos))
+            }
+        }
+        mydata <- `[`(x, i, j, drop = drop)
     }
     # coerse the result to a clseries if it is a series or to a
     # dfidx
@@ -82,9 +105,7 @@
                   )
     }
     else{
-        structure(mydata,
-                  idx = idx,
-                  class = class)
+        structure(mydata, class = .class)
     }
 }
 
@@ -120,15 +141,22 @@ print.dfidx <- function(x, ..., n = 10L){
         print(idx, ..., n = n)
     }
     else{
+        .nms_idx <- names(idx_name(x))
+        .pos_idx <- as.numeric(idx_name(x))
         class(x) <- c("tbl_dfidx", "tbl_df", "tbl", "data.frame")
         tbl2vctr <- function(x) vctrs::new_rcrd(unclass(x), class = "vecidx")
-        
-        x$idx <- tbl2vctr(x$idx)
-        pos_idx <- match("idx", names(x))
-        x <- bind_cols(x[pos_idx], x[- pos_idx])
-        print(x, ..., n = n)
+#        x$idx <- tbl2vctr(x$idx)
+#        pos_idx <- match("idx", names(x))
+#        x <- bind_cols(x[pos_idx], x[- pos_idx])
+        x[[.nms_idx]] <- tbl2vctr(x[[.nms_idx]])
+#        x <- bind_cols(x[.pos_idx], x[- .pos_idx])
+        x
+        print(x, ...)
     }
 }
+
+#' @export
+vec_ptype_abbr.vecidx <- function(x, ..., prefix_named, suffix_shape) "idx"
 
 #' @export
 format.vecidx <- function(x, ...){
@@ -142,22 +170,19 @@ format.vecidx <- function(x, ...){
 #' @export
 pillar_shaft.vecidx <- function(x, ...){
     out <- format(x)
-    pillar::new_pillar_shaft_simple(out, min_width = 5)
+    pillar::new_pillar_shaft_simple(out, min_width = 8, shorten = "mid")
 }
- 
-#' @export
-tbl_sum.tbl_dfidx <- function(x, ...) {
-    default_header <- NextMethod()
-    nms <- attr(x$idx, "names")
-    ids <- attr(x$idx, "ids")
+
+index_structure <- function(x){
+    nms <- attr(x, "names")
+    ids <- attr(x, "ids")
     idp <- match(c(1, 2), ids)
     names(ids) <- nms
-    cards <- sapply(nms, function(f) length(unique(field(x$idx, f))))
+    cards <- sapply(nms, function(f) length(unique(field(x, f))))
     cards <- cards[idp]
-    
-    .header <- c(default_header,
-                 "Indexes" = paste(cards[1], " (", names(cards)[1], ") x ", cards[2], " (", names(cards)[2], ") ", sep = ""),
-                 "Balanced" = ifelse(prod(cards) == nrow(x), "yes", "no"))
+    .indexes <- paste(cards[1], " (", names(cards)[1], ") x ", cards[2], " (", names(cards)[2], ") ", sep = "")
+    .balanced <- ifelse(prod(cards) == length(x), "yes", "no")
+    result <- c(Index = .indexes, Balanced = .balanced)
     if (length(idp) != length(ids)){
         nesting <- ids[- idp]
         nested <- names(cards[nesting])
@@ -165,9 +190,18 @@ tbl_sum.tbl_dfidx <- function(x, ...) {
         nesting_structure <- paste(sapply(1:length(nested),
                                           function(i) paste(nested[i], " (", nesting[i], ")", sep = "")),
                                    collapse = ", ")
-        .header <- c(.header, "Nesting" = nesting_structure)
+        .nesting <- nesting_structure
+        result <- c(result, Nesting = .nesting)
     }
-    .header
+    result
+}
+
+
+#' @export
+tbl_sum.tbl_dfidx <- function(x, ...) {
+    default_header <- NextMethod()
+    .idx <- names(which(sapply(x, function(aserie) inherits(aserie, "vecidx"))))
+    c(default_header, index_structure(x[[.idx]]))
 }
 
 #' @rdname methods.dfidx
@@ -236,23 +270,33 @@ head.dfidx <- function(x, n = 10L, ...) print(x, n = min(nrow(x), n), ...)
 
 #' @rdname methods.dfidx
 #' @export
+#' @importFrom glue glue
 print.xseries <- function(x, ..., n = 10L){
-    posxseries <- match("xseries", class(x))
-    class(x) <- class(x)[-(1:posxseries)]
+    # just remove xseries from the class ?
+#    posxseries <- match("xseries", class(x))
+#    class(x) <- class(x)[-(1:posxseries)]
+    class(x) <- setdiff(class(x), "xseries")
     idx <- attr(x, "idx")
     attr(x, "idx") <- NULL
+    if (inherits(idx, "tbl_df")) cat(glue("# Index: ", index_structure(idx)["Index"]), "\n")
     print(x[seq_len(min(length(x), n))])
-    print(idx, n = n)
+    if (! inherits(idx, "tbl_df")) print(idx, n = n)
 }
 
 
 #' @rdname methods.dfidx
 #' @export
 print.idx <- function(x, ..., n = 10L){
-    ids <- paste(attr(x, "ids"))
-    cat("~~~ indexes ~~~~\n")
-    print(as.data.frame(x)[seq_len(min(nrow(x), n)), ])
-    cat("indexes: ", paste(ids, collapse = ", "), "\n")
+    if (! inherits(x, "tbl_df")){
+        ids <- paste(attr(x, "ids"))
+        cat("~~~ indexes ~~~~\n")
+        print(as.data.frame(x)[seq_len(min(nrow(x), n)), ])
+        cat("indexes: ", paste(ids, collapse = ", "), "\n")
+    }
+    else{
+        class(x) <- setdiff(class(x), "idx")
+        print(x, ...)
+    }
 }    
 
 #' @rdname methods.dfidx
@@ -260,7 +304,7 @@ print.idx <- function(x, ..., n = 10L){
 #' @export
 mean.dfidx <- function(x, ...){
     alt <- idx(x)[[idx_name(x, 2)]]
-    x <- x[, - idx_name(x)]
+    x <- as.data.frame(x)[, - idx_name(x)] #!!!
     result <- data.frame(lapply(x,
                                 function(x){
                                     if (is.numeric(x)) result <- as.numeric(tapply(x, alt, mean))
