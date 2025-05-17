@@ -119,7 +119,7 @@ as.data.frame.dfidx <- function(x, row.names = NULL, optional = FALSE, ...){
     attr(x, "clseries") <- NULL
     x
 }
-    
+
 #' @rdname methods.dfidx
 #' @export
 print.dfidx <- function(x, ..., n = 10L){
@@ -151,7 +151,7 @@ print.dfidx <- function(x, ..., n = 10L){
         x[[.nms_idx]] <- tbl2vctr(x[[.nms_idx]])
 #        x <- bind_cols(x[.pos_idx], x[- .pos_idx])
         x
-        print(x, ...)
+        print(x, ..., n = n)
     }
 }
 

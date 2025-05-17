@@ -183,12 +183,14 @@ unfold_idx <- function(x){
     .terms <- attr(x, "terms")
     # Liming Wang 26 oct 2020, bug for intercept only models
     #    x <- x[, - match("idx", names(x))]
-    x <- x[, setdiff(names(x), names(.idx_name)), drop = FALSE]
+#    x <- x[, setdiff(names(x), names(.idx_name)), drop = FALSE]
+    # 2025-05-16 : setdiff extended to the names of the indexes
+    x <- x[, setdiff(names(x), c(names(.idx_name), names(.idx))), drop = FALSE]
     K <- length(x)
     if (.is_tibble) x <- bind_cols(x, .idx) else x <- cbind(x, .idx)
     structure(x,
               idx_vector = .idx_vector,
-#              name = .idx_name,
+              idx_name = .idx_name,
               terms = .terms)
 }
 
@@ -212,14 +214,28 @@ unfold_idx <- function(x){
 #' @export
 fold_idx <- function(x, pkg = NULL){
     .idx_vector <- attr(x, "idx_vector")
-#    .pos <- attr(x, "name")
-#    .name <- names(attr(x, "name"))
-    x <- dfidx(x, idx = attr(x, "idx_vector"), pkg = pkg)#, position = .pos, name = .name)
-    .attr <- attributes(x)
-    .attr <- .attr[setdiff(names(.attr), c("idx_vector", "name"))]
-    attributes(x) <- .attr
+    .idx_name <- attr(x, "idx_name")
+    attr(x, "idx_vector") <- attr(x, "idx_name") <- NULL
+    x <- dfidx(x, idx = .idx_vector, pkg = pkg,
+               position = .idx_name, name = names(.idx_name))
+#    .attr <- attributes(x)
+#    .attr <- .attr[setdiff(names(.attr), c("idx_vector", "idx_name"))]
+#    attributes(x) <- .attr
     x
 }
+
+## Ancienne version sans le nom et la position
+## fold_idx <- function(x, pkg = NULL){
+##     .idx_vector <- attr(x, "idx_vector")
+## #    .pos <- attr(x, "name")
+## #    .name <- names(attr(x, "name"))
+##     x <- dfidx(x, idx = attr(x, "idx_vector"), pkg = pkg)#, position = .pos, name = .name)
+##     .attr <- attributes(x)
+##     .attr <- .attr[setdiff(names(.attr), c("idx_vector", "name"))]
+##     attributes(x) <- .attr
+##     x
+## }
+
 
 ## fold_idx <- function(x, pkg = NULL){
 ##     .terms <- attr(x, "terms")

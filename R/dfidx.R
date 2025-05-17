@@ -81,6 +81,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                   # if clseries is not NA, it is xseries if clseries is NULL or
                   # c(clseries, "xseries") otherwise ; if clseries is NA, it is set
                   # to NULL
+
     if (! is.list(idx) & ! is.null(names(idx))){
         idx <- lapply(1:length(idx), function(i){
             nms_i <- names(idx)[i]
@@ -88,7 +89,6 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
             else c(idx[[i]], names(idx)[i])
         })
     }
-    
     .as.factor <- as.factor
     shape <- match.arg(shape)
     if (! is.null(varying)) shape <- "wide"

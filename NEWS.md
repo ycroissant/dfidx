@@ -1,4 +1,13 @@
-# dfidx 0.0-6
+# dfidx 0.1-1
+
+* the n argument is now opperative for the print method of tbl_df objects
+
+* line 188 miscellaneous.R : setdiff extended to the names of the indexes
+
+* the idx is relocated in the model frame so that the model response
+  function works properly
+
+# dfidx 0.1-0
 
 * new named vectors interface for defining the indexes
 

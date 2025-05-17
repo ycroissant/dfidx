@@ -98,10 +98,12 @@ slice.dfidx <- function(.data, ...){
 #' @export
 mutate.dfidx <- function(.data, ...){
     attrs <- attributes(.data)
-    .data <- as.data.frame(.data)
+#    .data <- as.data.frame(.data)
+    .data <- unfold_idx(.data)
     .data <- mutate(.data, ...)
-    attrs$names <- names(.data)
-    attributes(.data) <- attrs
+    .data <- fold_idx(.data)
+#    attrs$names <- names(.data)
+#    attributes(.data) <- attrs
     .data
 }
 
