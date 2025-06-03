@@ -1,11 +1,17 @@
 # dfidx 0.1-1
 
-* the n argument is now opperative for the print method of tbl_df objects
+* the n argument is now operative for the print method of tbl_df objects
 
 * line 188 miscellaneous.R : setdiff extended to the names of the indexes
 
 * the idx is relocated in the model frame so that the model response
   function works properly
+  
+* the `position` and `name` arguments enables to indicate the name and
+  the position of the idx column
+
+* `mutate` works now on the "unfolded" data frame so that indexes'
+  names can be accessed directly
 
 # dfidx 0.1-0
 

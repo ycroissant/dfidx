@@ -5,6 +5,9 @@
 \alias{[.dfidx}
 \alias{as.data.frame.dfidx}
 \alias{print.dfidx}
+\alias{vec_ptype_abbr.vecidx}
+\alias{format.vecidx}
+\alias{pillar_shaft.vecidx}
 \alias{head.dfidx}
 \alias{[[.dfidx}
 \alias{$.dfidx}
@@ -19,7 +22,13 @@
 
 \method{as.data.frame}{dfidx}(x, row.names = NULL, optional = FALSE, ...)
 
-\method{print}{dfidx}(x, ..., n = 10L)
+\method{print}{dfidx}(x, ..., n = NULL)
+
+\method{vec_ptype_abbr}{vecidx}(x, ..., prefix_named, suffix_shape)
+
+\method{format}{vecidx}(x, ...)
+
+\method{pillar_shaft}{vecidx}(x, ...)
 
 \method{head}{dfidx}(x, n = 10L, ...)
 
@@ -53,6 +62,8 @@ method, not used}
 \item{...}{further arguments}
 
 \item{n}{the number of rows for the print method}
+
+\item{prefix_named, suffix_shape}{see \link[vctrs:vec_ptype_full]{vctrs::vec_ptype_abbr}}
 
 \item{y}{the name or the position of the series one wishes to
 extract}

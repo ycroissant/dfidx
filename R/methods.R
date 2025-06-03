@@ -16,6 +16,7 @@
 #' @param row.names,optional arguments of the generic `as.data.frame`
 #'     method, not used
 #' @param n the number of rows for the print method
+#' @param prefix_named,suffix_shape see [vctrs::vec_ptype_abbr]
 #' @param ... further arguments
 #' @export
 #' @author Yves Croissant
@@ -122,8 +123,9 @@ as.data.frame.dfidx <- function(x, row.names = NULL, optional = FALSE, ...){
 
 #' @rdname methods.dfidx
 #' @export
-print.dfidx <- function(x, ..., n = 10L){
+print.dfidx <- function(x, ..., n = NULL){
     if (! inherits(x, "tbl_df")){
+        if (is.null(n)) n <- 10L
         idx <- idx(x)
         x <- as.data.frame(x)
         if (! inherits(x, "tbl_df")){
@@ -155,9 +157,13 @@ print.dfidx <- function(x, ..., n = 10L){
     }
 }
 
+#' @rdname methods.dfidx
+#' @method vec_ptype_abbr vecidx
 #' @export
 vec_ptype_abbr.vecidx <- function(x, ..., prefix_named, suffix_shape) "idx"
 
+#' @rdname methods.dfidx
+#' @method format vecidx
 #' @export
 format.vecidx <- function(x, ...){
     .cls <- attr(x, "ids")
@@ -167,6 +173,8 @@ format.vecidx <- function(x, ...){
     paste(id1, id2, sep = ":")
 }
 
+#' @rdname methods.dfidx
+#' @method pillar_shaft vecidx
 #' @export
 pillar_shaft.vecidx <- function(x, ...){
     out <- format(x)

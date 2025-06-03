@@ -187,7 +187,12 @@ unfold_idx <- function(x){
     # 2025-05-16 : setdiff extended to the names of the indexes
     x <- x[, setdiff(names(x), c(names(.idx_name), names(.idx))), drop = FALSE]
     K <- length(x)
-    if (.is_tibble) x <- bind_cols(x, .idx) else x <- cbind(x, .idx)
+    if (.is_tibble){
+        # 2025-05-19 bind_cols doesn't work for tbls with further classes
+        class(x) <- class(.idx) <- c("tbl_df", "tbl", "data.frame")
+        x <- bind_cols(x, .idx)
+    } else x <- cbind(x, .idx)
+    
     structure(x,
               idx_vector = .idx_vector,
               idx_name = .idx_name,

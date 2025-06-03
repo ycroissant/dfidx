@@ -1,6 +1,6 @@
 Package: dfidx
 Version: 0.1-1
-Date: 2025-05-17
+Date: 2025-06-03
 Title: Indexed Data Frames
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
 Depends: R (>= 3.5.0)
