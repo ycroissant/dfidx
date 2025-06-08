@@ -34,8 +34,6 @@
 #' @return an object of class `"dfidx"`
 #' @export
 #' @importFrom stats reshape as.formula formula terms update relevel
-#' @importFrom dplyr relocate
-#' @importFrom tidyselect any_of
 #' @author Yves Croissant
 #' @examples
 #' # the first two columns contain the index
@@ -82,6 +80,8 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                   # c(clseries, "xseries") otherwise ; if clseries is NA, it is set
                   # to NULL
 
+    is.tibble <- inherits(data, "tbl_df")
+    
     if (! is.list(idx) & ! is.null(names(idx))){
         idx <- lapply(1:length(idx), function(i){
             nms_i <- names(idx)[i]
@@ -246,14 +246,10 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
         alt.name <- idnames[2]
         if (! is.null(varying)){
             varying <- eval_arg(varying)
-            totibble <- FALSE
-            if (inherits(data, "tbl")){
-                data <- as.data.frame(data)
-                totibble <- TRUE
-            }
+            if (is.tibble) data <- class(data) <- "data.frame"
             data <- reshape(data, varying = varying, direction = "long", sep = sep,
                             timevar = alt.name, idvar = chid.name, ids = chid.var, ...)
-            if (totibble) data <- as_tibble(data)
+            if (is.tibble) class(data) <- c("tbl_df", "tbl", "data.frame")
         }
         else{
             id.names <- as.numeric(rownames(data))
@@ -465,7 +461,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     if (fancy.row.names) rownames(data) <- paste(idx[[posids[1]]], idx[[posids[2]]], sep = "-")
     
     # --------------------------
-    # 10/ Take the opposite of the required series
+    # 11/ Take the opposite of the required series
     # --------------------------
     if (! is.null(opposite)){
         if (anyNA(match(opposite, names(data)))) stop("some series in the opposite argument don't exist")
@@ -473,11 +469,15 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     }
 
     # --------------------------
-    # 10/ Return the dfidx
+    # 12/ Return the dfidx
     # --------------------------
 
-    if (! is.null(pkg)) clsgdata <- c(paste("dfidx_", pkg, sep = ""), "dfidx")
-    else clsgdata <- "dfidx"
+    classes <- c()
+    if (! is.null(pkg)) classes <- paste("dfidx_", pkg, sep = "")
+    if (is.tibble) classes <- c(classes, "tbl_dfidx")
+    classes <- c(classes, "dfidx")
+    if (is.tibble) classes <- c(classes, "tbl_df", "tbl")
+    classes <- c(classes, "data.frame")
     class(idx) <- c("idx", class(idx))
     rownames(data) <- rownames(idx) <- NULL
     # drop the unused levels for the second index
@@ -488,11 +488,14 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     K <- length(data)
     if (.position > K + 1) stop(cat("position should be <= ", K + 1, "\n"))
     .before <- seq_len(.position - 1)
-    .after <- .position:K
-#    print(head(data, 3));stop()
+    if (.position == K + 1) .after <- numeric(0) else .after <- .position:K
     data[[.name]] <- idx
-    data <- data %>% relocate(any_of(.name), .before = any_of(.position))
-    data <- structure(data, class = c(clsgdata, class(data)), clseries = clseries, choice = choice)
+#    data <- data %>% relocate(any_of(.name), .before = any_of(.position))
+    # equivalent to relocate
+    pos_name <- which(names(data) == .name)
+#    data <- data[, c(1:(.position - 1), pos_name, .position:ncol(data))]
+    data <- data[, c(.before, pos_name, .after)]
+    data <- structure(data, class = classes, clseries = clseries, choice = choice)
     if (ranked) data <- mymlogit2rank(data, choicename = choice)
     data
 }
@@ -522,4 +525,6 @@ mymlogit2rank <- function(x, choicename, ...){
     dfidx(result, idx = list(c("idx1", id_name), alt_name), pkg = "mlogit")
 }
 
+op.dfidx <- list(
+  dfidx.print_n = 10L)
 

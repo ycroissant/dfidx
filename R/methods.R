@@ -16,7 +16,6 @@
 #' @param row.names,optional arguments of the generic `as.data.frame`
 #'     method, not used
 #' @param n the number of rows for the print method
-#' @param prefix_named,suffix_shape see [vctrs::vec_ptype_abbr]
 #' @param ... further arguments
 #' @export
 #' @author Yves Croissant
@@ -25,9 +24,6 @@
 #'     and `[[<-` modify the values of an existing column or create a
 #'     new column of a `dfidx` object, `print` is called for its side
 #'     effect
-#' @importFrom pillar new_pillar_shaft_simple tbl_sum pillar_shaft
-#' @importFrom vctrs new_rcrd field vec_ptype_abbr
-#' @importFrom dplyr bind_cols
 #' @examples
 #' mn <- dfidx(munnell)
 #' # extract a series (returns as a xseries object)
@@ -124,92 +120,19 @@ as.data.frame.dfidx <- function(x, row.names = NULL, optional = FALSE, ...){
 #' @rdname methods.dfidx
 #' @export
 print.dfidx <- function(x, ..., n = NULL){
-    if (! inherits(x, "tbl_df")){
-        if (is.null(n)) n <- 10L
-        idx <- idx(x)
-        x <- as.data.frame(x)
-        if (! inherits(x, "tbl_df")){
-            if (n < nrow(x))
-                cat(paste("~~~~~~~\n", "first", n, "observations out of", nrow(x), "\n~~~~~~~\n"))
-            stopifnot(length(n) == 1L)
-            n <- if (n < 0L) 
-                     max(nrow(x) + n, 0L)
-                 else min(n, nrow(x))
-            x <- x[seq_len(n), , drop = FALSE]
-            print(x, ...)
-        }
-        else print(x, ..., n = n)
-        cat("\n")
-        print(idx, ..., n = n)
-    }
-    else{
-        .nms_idx <- names(idx_name(x))
-        .pos_idx <- as.numeric(idx_name(x))
-        class(x) <- c("tbl_dfidx", "tbl_df", "tbl", "data.frame")
-        tbl2vctr <- function(x) vctrs::new_rcrd(unclass(x), class = "vecidx")
-#        x$idx <- tbl2vctr(x$idx)
-#        pos_idx <- match("idx", names(x))
-#        x <- bind_cols(x[pos_idx], x[- pos_idx])
-        x[[.nms_idx]] <- tbl2vctr(x[[.nms_idx]])
-#        x <- bind_cols(x[.pos_idx], x[- .pos_idx])
-        x
-        print(x, ..., n = n)
-    }
-}
-
-#' @rdname methods.dfidx
-#' @method vec_ptype_abbr vecidx
-#' @export
-vec_ptype_abbr.vecidx <- function(x, ..., prefix_named, suffix_shape) "idx"
-
-#' @rdname methods.dfidx
-#' @method format vecidx
-#' @export
-format.vecidx <- function(x, ...){
-    .cls <- attr(x, "ids")
-    ids <- match(c(1, 2), .cls)
-    id1 <- field(x, ids[1])
-    id2 <- field(x, ids[2])
-    paste(id1, id2, sep = ":")
-}
-
-#' @rdname methods.dfidx
-#' @method pillar_shaft vecidx
-#' @export
-pillar_shaft.vecidx <- function(x, ...){
-    out <- format(x)
-    pillar::new_pillar_shaft_simple(out, min_width = 8, shorten = "mid")
-}
-
-index_structure <- function(x){
-    nms <- attr(x, "names")
-    ids <- attr(x, "ids")
-    idp <- match(c(1, 2), ids)
-    names(ids) <- nms
-    cards <- sapply(nms, function(f) length(unique(field(x, f))))
-    cards <- cards[idp]
-    .indexes <- paste(cards[1], " (", names(cards)[1], ") x ", cards[2], " (", names(cards)[2], ") ", sep = "")
-    .balanced <- ifelse(prod(cards) == length(x), "yes", "no")
-    result <- c(Index = .indexes, Balanced = .balanced)
-    if (length(idp) != length(ids)){
-        nesting <- ids[- idp]
-        nested <- names(cards[nesting])
-        nesting <- names(nesting)
-        nesting_structure <- paste(sapply(1:length(nested),
-                                          function(i) paste(nested[i], " (", nesting[i], ")", sep = "")),
-                                   collapse = ", ")
-        .nesting <- nesting_structure
-        result <- c(result, Nesting = .nesting)
-    }
-    result
-}
-
-
-#' @export
-tbl_sum.tbl_dfidx <- function(x, ...) {
-    default_header <- NextMethod()
-    .idx <- names(which(sapply(x, function(aserie) inherits(aserie, "vecidx"))))
-    c(default_header, index_structure(x[[.idx]]))
+    if (is.null(n)) n <- 10L
+    idx <- idx(x)
+    x <- as.data.frame(x)
+    if (n < nrow(x))
+        cat(paste("~~~~~~~\n", "first", n, "observations out of", nrow(x), "\n~~~~~~~\n"))
+    stopifnot(length(n) == 1L)
+    n <- if (n < 0L) 
+             max(nrow(x) + n, 0L)
+         else min(n, nrow(x))
+    x <- x[seq_len(n), , drop = FALSE]
+    print(x, ...)
+    cat("\n")
+    print(idx, ..., n = n)
 }
 
 #' @rdname methods.dfidx
@@ -278,24 +201,46 @@ head.dfidx <- function(x, n = 10L, ...) print(x, n = min(nrow(x), n), ...)
 
 #' @rdname methods.dfidx
 #' @export
-#' @importFrom glue glue
 print.xseries <- function(x, ..., n = 10L){
     # just remove xseries from the class ?
 #    posxseries <- match("xseries", class(x))
 #    class(x) <- class(x)[-(1:posxseries)]
+    index_structure <- function(x){
+        nms <- attr(x, "names")
+        ids <- attr(x, "ids")
+        idp <- match(c(1, 2), ids)
+        names(ids) <- nms
+#        cards <- sapply(nms, function(f) length(unique(field(x, f))))
+        cards <- sapply(nms, function(f) length(unique(x[[f]])))
+        cards <- cards[idp]
+        .indexes <- paste(cards[1], " (", names(cards)[1], ") x ", cards[2], " (", names(cards)[2], ") ", sep = "")
+        .balanced <- ifelse(prod(cards) == length(x), "yes", "no")
+        result <- c(Index = .indexes, Balanced = .balanced)
+        if (length(idp) != length(ids)){
+            nesting <- ids[- idp]
+            nested <- names(cards[nesting])
+            nesting <- names(nesting)
+            nesting_structure <- paste(sapply(1:length(nested),
+                                              function(i) paste(nested[i], " (", nesting[i], ")", sep = "")),
+                                       collapse = ", ")
+            .nesting <- nesting_structure
+            result <- c(result, Nesting = .nesting)
+        }
+        result
+    }
     class(x) <- setdiff(class(x), "xseries")
     idx <- attr(x, "idx")
     attr(x, "idx") <- NULL
-    if (inherits(idx, "tbl_df")) cat(glue("# Index: ", index_structure(idx)["Index"]), "\n")
+    if (inherits(idx, "tbl_df")) cat(paste("# Index: ", index_structure(idx)["Index"], "\n", sep = "\n"))
     print(x[seq_len(min(length(x), n))])
     if (! inherits(idx, "tbl_df")) print(idx, n = n)
 }
 
-
 #' @rdname methods.dfidx
 #' @export
-print.idx <- function(x, ..., n = 10L){
+print.idx <- function(x, ..., n = NULL){
     if (! inherits(x, "tbl_df")){
+        if (is.null(n)) n <- 10L
         ids <- paste(attr(x, "ids"))
         cat("~~~ indexes ~~~~\n")
         print(as.data.frame(x)[seq_len(min(nrow(x), n)), ])
@@ -303,7 +248,7 @@ print.idx <- function(x, ..., n = 10L){
     }
     else{
         class(x) <- setdiff(class(x), "idx")
-        print(x, ...)
+        print(x, ..., n = n)
     }
 }    
 

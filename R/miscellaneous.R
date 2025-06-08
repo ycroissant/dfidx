@@ -187,11 +187,12 @@ unfold_idx <- function(x){
     # 2025-05-16 : setdiff extended to the names of the indexes
     x <- x[, setdiff(names(x), c(names(.idx_name), names(.idx))), drop = FALSE]
     K <- length(x)
-    if (.is_tibble){
-        # 2025-05-19 bind_cols doesn't work for tbls with further classes
-        class(x) <- class(.idx) <- c("tbl_df", "tbl", "data.frame")
-        x <- bind_cols(x, .idx)
-    } else x <- cbind(x, .idx)
+    ## if (.is_tibble){
+    ##     # 2025-05-19 bind_cols doesn't work for tbls with further classes
+    ##     class(x) <- class(.idx) <- c("tbl_df", "tbl", "data.frame")
+    ##     x <- bind_cols(x, .idx)
+    ## } else x <- cbind(x, .idx)
+    x <- cbind(x, .idx)
     
     structure(x,
               idx_vector = .idx_vector,
@@ -272,3 +273,12 @@ levels.idx <- function(x){
     x <- x[[idx_name(x, 2)]]
     if (is.factor(x)) levels(x) else NULL
 }
+
+
+.onAttach <- function(lib, pkg){
+    packageStartupMessage(
+        paste0("The tidyverse part of the package is now in the tidydfidx package\n",
+               "so that the dfidx package now depends only on a small set of packages\n"),
+        domain = NULL,  appendLF = TRUE)
+}
+

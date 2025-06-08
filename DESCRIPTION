@@ -1,10 +1,10 @@
 Package: dfidx
-Version: 0.1-1
-Date: 2025-06-03
+Version: 0.1-2
+Date: 2025-06-06
 Title: Indexed Data Frames
 Authors@R: person("Yves", "Croissant", role = c("aut", "cre"), email = "yves.croissant@univ-reunion.fr")
-Depends: R (>= 3.5.0)
-Imports: dplyr, Formula, vctrs, pillar, glue, Rdpack, tidyselect
+Depends: R (>= 4.1.0)
+Imports: Formula, Rdpack
 Suggests: knitr, quarto
 Description: Provides extended data frames, with a special data frame column which contains two indexes, with potentially a nesting structure.
 License: GPL (>=2)

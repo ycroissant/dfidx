@@ -1,3 +1,8 @@
+# dfidx 0.1-2
+
+* **dfidx** is no free of tidyverse's dependencies which are now include
+  in the new **tidydfidx** package
+
 # dfidx 0.1-1
 
 * the n argument is now operative for the print method of tbl_df objects
