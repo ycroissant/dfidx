@@ -246,7 +246,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
         alt.name <- idnames[2]
         if (! is.null(varying)){
             varying <- eval_arg(varying)
-            if (is.tibble) data <- class(data) <- "data.frame"
+            if (is.tibble) class(data) <- "data.frame"
             data <- reshape(data, varying = varying, direction = "long", sep = sep,
                             timevar = alt.name, idvar = chid.name, ids = chid.var, ...)
             if (is.tibble) class(data) <- c("tbl_df", "tbl", "data.frame")

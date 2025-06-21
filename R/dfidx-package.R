@@ -8,8 +8,7 @@
 #' the function `dfidx` which takes as main argument a data frame and
 #' returns a `dfidx` object and the `idx`/`idx_name` functions which
 #' respectively return one or all of the indexes and their
-#' names. Methods are provided for `R`'s extractors and for some of
-#' `dplyr`'s verbs.
+#' names. Methods are provided for `R`'s extractors.
 #' 
 #' ## Installation
 #' 

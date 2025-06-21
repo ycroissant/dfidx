@@ -6,11 +6,11 @@ of values of two variables (indexes). `dfidx` exports the function
 `dfidx` which takes as main argument a data frame and returns a
 `dfidx` object and the `idx`/`idx_name` functions which respectively
 return one or all of the indexes and their names. Methods are provided
-for `R`'s extractors and for some of `dplyr`'s verbs. 
+for `R`'s extractors.
 
 ## Installation
 
-`dfidx` is on `CRAN`. Use\ : `install.packages("dfidx")`.
+`dfidx` is on `CRAN`. Use : `install.packages("dfidx")`.
 
-To install the developping version, use\ :
+To install the developping version, use :
 `remotes::install_github("ycroissant/dfidx")`.

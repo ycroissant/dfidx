@@ -121,7 +121,7 @@ as.data.frame.dfidx <- function(x, row.names = NULL, optional = FALSE, ...){
 #' @export
 print.dfidx <- function(x, ..., n = NULL){
     if (is.null(n)) n <- 10L
-    idx <- idx(x)
+    idx <- as.data.frame(idx(x))
     x <- as.data.frame(x)
     if (n < nrow(x))
         cat(paste("~~~~~~~\n", "first", n, "observations out of", nrow(x), "\n~~~~~~~\n"))
@@ -132,7 +132,12 @@ print.dfidx <- function(x, ..., n = NULL){
     x <- x[seq_len(n), , drop = FALSE]
     print(x, ...)
     cat("\n")
-    print(idx, ..., n = n)
+#    print(idx, ..., n = n)
+    ids <- paste(attr(idx, "ids"))
+    cat("~~~ indexes ~~~~\n")
+    idx <- idx[seq_len(n), ]
+    print(idx, ...)
+    cat("indexes: ", paste(ids, collapse = ", "), "\n")
 }
 
 #' @rdname methods.dfidx
@@ -239,17 +244,17 @@ print.xseries <- function(x, ..., n = 10L){
 #' @rdname methods.dfidx
 #' @export
 print.idx <- function(x, ..., n = NULL){
-    if (! inherits(x, "tbl_df")){
+#    if (! inherits(x, "tbl_df")){
         if (is.null(n)) n <- 10L
         ids <- paste(attr(x, "ids"))
         cat("~~~ indexes ~~~~\n")
         print(as.data.frame(x)[seq_len(min(nrow(x), n)), ])
         cat("indexes: ", paste(ids, collapse = ", "), "\n")
-    }
-    else{
-        class(x) <- setdiff(class(x), "idx")
-        print(x, ..., n = n)
-    }
+#    }
+#    else{
+#        class(x) <- setdiff(class(x), "idx")
+#        print(x, ..., n = n)
+#    }
 }    
 
 #' @rdname methods.dfidx
@@ -260,10 +265,10 @@ mean.dfidx <- function(x, ...){
     x <- as.data.frame(x)[, - idx_name(x)] #!!!
     result <- data.frame(lapply(x,
                                 function(x){
-                                    if (is.numeric(x)) result <- as.numeric(tapply(x, alt, mean))
+                                    if (is.numeric(x)) result <- as.numeric(tapply(x, alt, mean, na.rm = TRUE))
                                     else{
                                         if (is.logical(x)){
-                                            z <- tapply(x, alt, sum)
+                                            z <- tapply(x, alt, sum, na.rm = TRUE)
                                             result <- z == max(z)
                                         }
                                         if(is.character(x)) x <- factor(x, levels = unique(x))

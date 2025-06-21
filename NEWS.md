@@ -1,6 +1,17 @@
+# dfidx 0.1-3
+
+* `na.rm = TRUE` added in the `mean` method
+
+* the print method of dfidx is simplified
+
+* fix lg 250  if (is.tibble) data <- class(data) <- "data.frame" 
+
+* the print method for dfidx objects now includes directly the
+  printing of the index, without relying to the print.idx method
+
 # dfidx 0.1-2
 
-* **dfidx** is no free of tidyverse's dependencies which are now include
+* **dfidx** is now free of tidyverse's dependencies which are now include
   in the new **tidydfidx** package
 
 # dfidx 0.1-1
