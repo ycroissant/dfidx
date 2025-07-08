@@ -1,8 +1,21 @@
 # dfidx 0.1-3
 
+* `dfidx.print_n` is an option to choose the number of lines to print
+
+* `dfidx.pos_idx` is an option to choose the position of the `idx`
+  column
+
+* unit tests added
+
+* `transform`, `subset` methods and `organize` function (<=>
+  `dplyr::arrange`)
+
+* dfidx now have a sort (`TRUE` by default) and a drop.unused.levels
+  (`TRUE` by default) argument
+
 * `na.rm = TRUE` added in the `mean` method
 
-* the print method of dfidx is simplified
+* the `print` method of `dfidx` is simplified
 
 * fix lg 250  if (is.tibble) data <- class(data) <- "data.frame" 
 

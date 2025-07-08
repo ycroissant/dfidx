@@ -1,10 +1,10 @@
 #' Index for dfidx
 #'
-#' The index of a `dfidx` is a data.frame containing the different
+#' The index of a `dfidx` is a data frame containing the different
 #' series which define the two indexes (with possibly a nesting
-#' structure). It is stored as a "sticky" data.frame column of the
-#' data.frame and is also inherited by series (of class `'xseries'`)
-#' which are extracted from a `dfidx`.
+#' structure). It is stored as a "sticky" data frame column of the
+#' `dfidx` object and is also inherited by series (of class
+#' `'xseries'`) which are extracted from a `dfidx` object.
 #'
 #' @param x a `dfidx` or a `xseries`
 #' @param n,m `n` is the index to be extracted (1 or 2), `m` equal to
@@ -15,7 +15,7 @@
 #'     method
 #' @details idx is defined as a generic with a `dfidx` and a `xseries`
 #'     method.
-#' @return a `data.frame` containing the indexes or a series if a
+#' @return a data frame containing the indexes or a series if a
 #'     specific index is selected
 #' @export
 #' @author Yves Croissant
@@ -72,20 +72,20 @@ format.idx <- function(x, size = 4, ...){
                  nchar(as.character(x[[2]]))), sep = ":")
 }
 
-#' Get the names of the indexes
+#' Get the name and the position of the index column
 #'
 #' 
-#' This function extract the names of the indexes or the name of a
-#' specific index
+#' This function extract the names of the indexes (along with the
+#' position of the `idx` column) or the name of a specific index
 #'
 #' @name idx_name
 #' @param x a `dfidx`, a `idx` or a `xseries` object
 #' @param n the index to be extracted (1 or 2, ignoring the nesting
 #'     variables)
 #' @param m if > 1, a nesting variable
-#' @return if `n` is `NULL`, a named integer which gives the posititon
-#'     of the `idx` column in the `dfidx` object, otherwise, a
-#'     character of length 1
+#' @return if `n` is `NULL`, a named integer which gives the position
+#'     and the name of the `idx` column in the `dfidx` object,
+#'     otherwise, a character of length 1
 #' @export
 #' @author Yves Croissant
 #' @examples
@@ -158,13 +158,15 @@ make_idx <- function(x){
 
 #' Fold and Unfold a dfidx object
 #'
-#' `fold_idx` takes a dfidx, includes the indexes as stand alone
-#' columns, remove the `idx` column and return a data.frame, with an
-#' `ids` attribute that contains the informations about the
-#' indexes. `fold_idx` performs the opposite operation
+#' `fold_idx` takes a `dfidx` object, includes the indexes as stand
+#' alone columns, remove the `idx` column and return a data frame,
+#' with an `ids` attribute that contains the informations about the
+#' indexes. `fold_idx` performs the opposite operation.
 #' @param x a `dfidx` object
 #' @param pkg if not `NULL`, this argument is passed to `dfidx`
-#' @return a `data.frame` for the `unfold_dfidx` function, a `dfidx`
+#' @param sort a boolean, whether the resulting `dfidx` object should
+#'     be sorted or not
+#' @return a data frame for the `unfold_dfidx` function, a `dfidx`
 #'     object for the `fold_dfidx` function
 #' @export
 #' @author Yves Croissant
@@ -193,7 +195,6 @@ unfold_idx <- function(x){
     ##     x <- bind_cols(x, .idx)
     ## } else x <- cbind(x, .idx)
     x <- cbind(x, .idx)
-    
     structure(x,
               idx_vector = .idx_vector,
               idx_name = .idx_name,
@@ -218,12 +219,12 @@ unfold_idx <- function(x){
 
 #' @rdname unfold_idx
 #' @export
-fold_idx <- function(x, pkg = NULL){
+fold_idx <- function(x, pkg = NULL, sort = FALSE){
     .idx_vector <- attr(x, "idx_vector")
     .idx_name <- attr(x, "idx_name")
     attr(x, "idx_vector") <- attr(x, "idx_name") <- NULL
     x <- dfidx(x, idx = .idx_vector, pkg = pkg,
-               position = .idx_name, name = names(.idx_name))
+               position = .idx_name, name = names(.idx_name), sort = sort)
 #    .attr <- attributes(x)
 #    .attr <- .attr[setdiff(names(.attr), c("idx_vector", "idx_name"))]
 #    attributes(x) <- .attr
@@ -275,10 +276,10 @@ levels.idx <- function(x){
 }
 
 
-.onAttach <- function(lib, pkg){
-    packageStartupMessage(
-        paste0("The tidyverse part of the package is now in the tidydfidx package\n",
-               "so that the dfidx package now depends only on a small set of packages\n"),
-        domain = NULL,  appendLF = TRUE)
-}
+## .onAttach <- function(lib, pkg){
+##     packageStartupMessage(
+##         paste0("The tidyverse part of the package is now in the tidydfidx package\n",
+##                "so that the dfidx package now depends only on a small set of packages\n"),
+##         domain = NULL,  appendLF = TRUE)
+## }
 

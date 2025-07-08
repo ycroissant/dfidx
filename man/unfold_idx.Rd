@@ -7,22 +7,25 @@
 \usage{
 unfold_idx(x)
 
-fold_idx(x, pkg = NULL)
+fold_idx(x, pkg = NULL, sort = FALSE)
 }
 \arguments{
 \item{x}{a \code{dfidx} object}
 
 \item{pkg}{if not \code{NULL}, this argument is passed to \code{dfidx}}
+
+\item{sort}{a boolean, whether the resulting \code{dfidx} object should
+be sorted or not}
 }
 \value{
-a \code{data.frame} for the \code{unfold_dfidx} function, a \code{dfidx}
+a data frame for the \code{unfold_dfidx} function, a \code{dfidx}
 object for the \code{fold_dfidx} function
 }
 \description{
-\code{fold_idx} takes a dfidx, includes the indexes as stand alone
-columns, remove the \code{idx} column and return a data.frame, with an
-\code{ids} attribute that contains the informations about the
-indexes. \code{fold_idx} performs the opposite operation
+\code{fold_idx} takes a \code{dfidx} object, includes the indexes as stand
+alone columns, remove the \code{idx} column and return a data frame,
+with an \code{ids} attribute that contains the informations about the
+indexes. \code{fold_idx} performs the opposite operation.
 }
 \examples{
 mn <- dfidx(munnell, idx = c(region = "state", "year"), position = 3, name = "index")

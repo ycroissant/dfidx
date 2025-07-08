@@ -17,9 +17,10 @@
 #'     `c("dfidx_pkg", "dfidx")` which enables to write specific
 #'     classes
 #' @param fancy.row.names if `TRUE`, fancy row names are computed
+#'     (deprecated)
 #' @param subset a logical which defines a subset of rows to return
 #' @param idnames the names of the indexes
-#' @param shape either `wide` or `long`
+#' @param shape either `"wide"` or `"long"`
 #' @param choice the choice
 #' @param varying,sep relevant for data sets in wide format, these
 #'     arguments are passed to reshape
@@ -28,15 +29,18 @@
 #' @param ranked a boolean for ranked data
 #' @param name name of the `idx` column
 #' @param position position of the `idx` column
+#' @param sort should the data frame be sorted using the indexes ?
+#' @param drop.unused.levels if `TRUE` the unused levels of the second
+#'     index are droped
 #' @param ... further arguments
-#' @details Indexes are stored as a `data.frame` column in the
-#'     resulting `dfidx` object
+#' @details Indexes are stored as a data frame column in the resulting
+#'     `dfidx` object
 #' @return an object of class `"dfidx"`
 #' @export
 #' @importFrom stats reshape as.formula formula terms update relevel
 #' @author Yves Croissant
 #' @examples
-#' # the first two columns contain the index
+#' # the first two columns contain the indexes
 #' mn <- dfidx(munnell)
 #'
 #' # explicitely indicate the two indexes using either a vector or a
@@ -54,10 +58,10 @@
 #' mn <- dfidx(munnell, idx = "state", idnames = c("state", "year"))
 #'
 #' # or an integer equal to the cardinal of the first index
-#' mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"))
+#' mn <- dfidx(munnell, idx = 48L, idnames = c("state", "year"))
 #'
 #' # Indicate the values of the second index using the levels argument
-#' mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"),
+#' mn <- dfidx(munnell, idx = 48L, idnames = c("state", "year"),
 #'             levels = 1970:1986)
 #' 
 #' # Nesting structure for one of the index
@@ -68,12 +72,12 @@
 #'             varying = 3:36, sep = "_", idnames = c(NA, "year"))
 #'
 #' # Customize the name and the position of the `idx` column
-#' #dfidx(munnell, position = 3, name = "index")
+#' dfidx(munnell, position = 3, name = "index")
 dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = NULL,
                   fancy.row.names = FALSE, subset = NULL,
                   idnames = NULL, shape = c("long", "wide"), choice = NULL,
                   varying = NULL, sep = ".", opposite = NULL, levels = NULL, ranked = FALSE,
-                  name, position, ...){
+                  name, position, sort = TRUE, drop.unused.levels = TRUE, ...){
                   # the default class of the resulting data.frame is dfidx
                   # if (is.null(clsgdata)) clsgdata <- "dfidx"
                   # if clseries is not NA, it is xseries if clseries is NULL or
@@ -92,7 +96,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     .as.factor <- as.factor
     shape <- match.arg(shape)
     if (! is.null(varying)) shape <- "wide"
-
+    .sort <- sort
     cldata <- match.call(expand.dots = TRUE)
 
     # Idea borrowed from plm: if no index are provided and the data
@@ -336,7 +340,6 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                                            paste(idx[[2]][is.na(posid2)], collapse = "-"),
                                            "do(es)n't exist"))
     }
-
     # -------------------------------
     # 5/ Set the class of the indexes
     # -------------------------------
@@ -379,17 +382,20 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     # -------------------------------
     # 6/ Sort the data.frame
     # -------------------------------
-    posids <- c(rev(posid1), rev(posid2))
-    posids <- as.list(data[posids])
-    names(posids) <- NULL
-    theorder <- as.call(c(as.name("order"), posids))
-    theorder <- eval(theorder)
-    data <- data[theorder, ]
+    if (.sort){
+        posids <- c(rev(posid1), rev(posid2))
+        posids <- as.list(data[posids])
+        names(posids) <- NULL
+        theorder <- as.call(c(as.name("order"), posids))
+        theorder <- eval(theorder)
+        data <- data[theorder, ]
+    }
 
     # ------------------------------------------------
     # 7/ Create the second index if it is not provided
     # ------------------------------------------------
     if (is.null(posid2)){
+        if (! .sort) stop("the data frame should be sorted if the second index is not provided")
         uniqueid <- unique(data[[posid1[[1]]]])
         Tis <- table(data[[posid1[1]]])
         Tis <- Tis[as.character(uniqueid)]
@@ -444,7 +450,7 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
             }
         }
     }
-    
+
     # ---------------------------------------------------------------
     # 10/ Construct the data.frame of the indexes with its attributes    
     # ---------------------------------------------------------------
@@ -459,7 +465,6 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
                                             "the dfidx contains 0 columns"))
     }
     if (fancy.row.names) rownames(data) <- paste(idx[[posids[1]]], idx[[posids[2]]], sep = "-")
-    
     # --------------------------
     # 11/ Take the opposite of the required series
     # --------------------------
@@ -481,12 +486,14 @@ dfidx <- function(data, idx = NULL, drop.index = TRUE, as.factor = NULL, pkg = N
     class(idx) <- c("idx", class(idx))
     rownames(data) <- rownames(idx) <- NULL
     # drop the unused levels for the second index
-    idx[[idx_name(idx, 2)]] <- idx[[idx_name(idx, 2)]][drop = TRUE]
+    if (drop.unused.levels) idx[[idx_name(idx, 2)]] <- idx[[idx_name(idx, 2)]][drop = TRUE]
     # set idx name and position
     if (missing(name)) .name <- "idx" else .name <- name
-    if (missing(position)) .position <- ifelse(inherits(data, "tbl_df"), 1, length(data) + 1) else .position <- position
+#    if (missing(position)) .position <- ifelse(inherits(data, "tbl_df"), 1, length(data) + 1) else .position <- position
     K <- length(data)
-    if (.position > K + 1) stop(cat("position should be <= ", K + 1, "\n"))
+    if (missing(position)) .position <- options()$dfidx.pos_idx else .position <- position
+#    if (.position > K + 1) stop(cat("position should be <= ", K + 1, "\n"))
+    if (.position > K + 1) .position <- K + 1
     .before <- seq_len(.position - 1)
     if (.position == K + 1) .after <- numeric(0) else .after <- .position:K
     data[[.name]] <- idx
@@ -525,6 +532,16 @@ mymlogit2rank <- function(x, choicename, ...){
     dfidx(result, idx = list(c("idx1", id_name), alt_name), pkg = "mlogit")
 }
 
-op.dfidx <- list(
-  dfidx.print_n = 10L)
+## op.dfidx <- list(
+##   dfidx.print_n = 10L)
 
+
+
+.onLoad = function(libname, pkgname) {
+    opts = c(dfidx.print_n = "10L",
+             dfidx.pos_idx = Inf)
+    for (i in setdiff(names(opts),names(options()))) {
+        eval(parse(text=paste0("options(",i,"=",opts[i],")")))
+    }
+    invisible()
+}

@@ -4,7 +4,7 @@
 \alias{model.frame.dfidx}
 \alias{model.matrix.dfidx}
 \alias{print.dfidx_matrix}
-\title{model.frame/matrix for dfidx objects}
+\title{model.frame and model.matrix methods for dfidx objects}
 \usage{
 \method{model.frame}{dfidx}(
   formula,
@@ -20,7 +20,7 @@
 
 \method{model.matrix}{dfidx}(object, ..., lhs = NULL, rhs = 1, dot = "separate")
 
-\method{print}{dfidx_matrix}(x, ..., n = 10L)
+\method{print}{dfidx_matrix}(x, ..., n = NULL)
 }
 \arguments{
 \item{formula}{a \code{dfidx}}
@@ -33,7 +33,7 @@
 
 \item{reflevel}{a user-defined first level for the second index}
 
-\item{balanced}{a boolean indicating if the resulting data.frame
+\item{balanced}{a boolean indicating if the resulting \code{data.frame}
 has to be balanced or not}
 
 \item{object}{a dfidx object}
@@ -47,12 +47,13 @@ a \code{dfidx} object for the \code{model.frame} method and a matrix
 for the \code{model.matrix} method.
 }
 \description{
-Specific model.frame/matrix are provided for dfidx objects. This
-leads to an unusual order of arguments compared to the
-usage. Actually, the first two arguments of the model.frame method
-are a dfidx and a formula and the only main argument of the
-model.matrix is a dfidx which should be the result of a call to the
-model.frame method, i.e. it should have a term attribute.
+Specific \code{model.frame} and \code{model.matrix} are provided for \code{dfidx}
+objects. This leads to an unusual order of arguments compared to
+the usage. Actually, the first two arguments of the \code{model.frame}
+method are a \code{dfidx} and a \code{formula} and the only main argument of
+the \code{model.matrix} method is a \code{dfidx} which should be the result
+of a call to the \code{model.frame} method, i.e. it should have a
+\code{terms} attribute.
 }
 \examples{
 mn <- dfidx(munnell)

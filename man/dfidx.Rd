@@ -22,6 +22,8 @@ dfidx(
   ranked = FALSE,
   name,
   position,
+  sort = TRUE,
+  drop.unused.levels = TRUE,
   ...
 )
 }
@@ -39,13 +41,14 @@ from the data.frame as stand alone series}
 \code{c("dfidx_pkg", "dfidx")} which enables to write specific
 classes}
 
-\item{fancy.row.names}{if \code{TRUE}, fancy row names are computed}
+\item{fancy.row.names}{if \code{TRUE}, fancy row names are computed
+(deprecated)}
 
 \item{subset}{a logical which defines a subset of rows to return}
 
 \item{idnames}{the names of the indexes}
 
-\item{shape}{either \code{wide} or \code{long}}
+\item{shape}{either \code{"wide"} or \code{"long"}}
 
 \item{choice}{the choice}
 
@@ -62,6 +65,11 @@ arguments are passed to reshape}
 
 \item{position}{position of the \code{idx} column}
 
+\item{sort}{should the data frame be sorted using the indexes ?}
+
+\item{drop.unused.levels}{if \code{TRUE} the unused levels of the second
+index are droped}
+
 \item{...}{further arguments}
 }
 \value{
@@ -73,11 +81,11 @@ nested) indexes and for which series have thefore a natural tabular
 representation
 }
 \details{
-Indexes are stored as a \code{data.frame} column in the
-resulting \code{dfidx} object
+Indexes are stored as a data frame column in the resulting
+\code{dfidx} object
 }
 \examples{
-# the first two columns contain the index
+# the first two columns contain the indexes
 mn <- dfidx(munnell)
 
 # explicitely indicate the two indexes using either a vector or a
@@ -95,10 +103,10 @@ mn <- dfidx(munnell, idnames = c(NA, "period"))
 mn <- dfidx(munnell, idx = "state", idnames = c("state", "year"))
 
 # or an integer equal to the cardinal of the first index
-mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"))
+mn <- dfidx(munnell, idx = 48L, idnames = c("state", "year"))
 
 # Indicate the values of the second index using the levels argument
-mn <- dfidx(munnell, idx = 48, idnames = c("state", "year"),
+mn <- dfidx(munnell, idx = 48L, idnames = c("state", "year"),
             levels = 1970:1986)
 
 # Nesting structure for one of the index
@@ -109,7 +117,7 @@ mn <- dfidx(munnell_wide, idx = c(region = "state"),
             varying = 3:36, sep = "_", idnames = c(NA, "year"))
 
 # Customize the name and the position of the `idx` column
-#dfidx(munnell, position = 3, name = "index")
+dfidx(munnell, position = 3, name = "index")
 }
 \author{
 Yves Croissant

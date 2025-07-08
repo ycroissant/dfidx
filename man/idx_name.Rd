@@ -5,7 +5,7 @@
 \alias{idx_name.dfidx}
 \alias{idx_name.idx}
 \alias{idx_name.xseries}
-\title{Get the names of the indexes}
+\title{Get the name and the position of the index column}
 \usage{
 idx_name(x, n = 1, m = NULL)
 
@@ -24,13 +24,13 @@ variables)}
 \item{m}{if > 1, a nesting variable}
 }
 \value{
-if \code{n} is \code{NULL}, a named integer which gives the posititon
-of the \code{idx} column in the \code{dfidx} object, otherwise, a
-character of length 1
+if \code{n} is \code{NULL}, a named integer which gives the position
+and the name of the \code{idx} column in the \code{dfidx} object,
+otherwise, a character of length 1
 }
 \description{
-This function extract the names of the indexes or the name of a
-specific index
+This function extract the names of the indexes (along with the
+position of the \code{idx} column) or the name of a specific index
 }
 \examples{
 mn <- dfidx(munnell, idx = c(region = "state", president = "year"))

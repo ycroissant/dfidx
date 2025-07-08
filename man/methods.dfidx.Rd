@@ -13,6 +13,9 @@
 \alias{print.xseries}
 \alias{print.idx}
 \alias{mean.dfidx}
+\alias{transform.dfidx}
+\alias{subset.dfidx}
+\alias{organize}
 \title{Methods for dfidx}
 \usage{
 \method{[}{dfidx}(x, i, j, drop)
@@ -21,7 +24,7 @@
 
 \method{print}{dfidx}(x, ..., n = NULL)
 
-\method{head}{dfidx}(x, n = 10L, ...)
+\method{head}{dfidx}(x, n = NULL, ...)
 
 \method{[[}{dfidx}(x, y)
 
@@ -31,16 +34,22 @@
 
 \method{[[}{dfidx}(object, y) <- value
 
-\method{print}{xseries}(x, ..., n = 10L)
+\method{print}{xseries}(x, ..., n = NULL)
 
 \method{print}{idx}(x, ..., n = NULL)
 
 \method{mean}{dfidx}(x, ...)
+
+\method{transform}{dfidx}(`_data`, ...)
+
+\method{subset}{dfidx}(x, subset, select, drop = FALSE, drop.unused.levels = TRUE, ...)
+
+organize(x, ...)
 }
 \arguments{
-\item{x, object}{a \code{dfidx} object}
+\item{x, object, _data}{a \code{dfidx} object}
 
-\item{i}{the row index}
+\item{i}{the row index (or the column index if \code{j} is not used)}
 
 \item{j}{the column index}
 
@@ -58,18 +67,28 @@ method, not used}
 extract}
 
 \item{value}{the value for the replacement method}
+
+\item{subset, select}{see \code{base::subset}}
+
+\item{drop.unused.levels}{passed to \code{dfidx::dfidx}}
 }
 \value{
 \code{as.data.frame} and \code{mean} return a \code{data.frame}, \code{[[} and
-\code{$} a vector, \code{[} either a \code{dfidx} or a vector, \verb{$<-}
-and \verb{[[<-} modify the values of an existing column or create a
-new column of a \code{dfidx} object, \code{print} is called for its side
-effect
+\code{$} a vector, \code{[} either a \code{dfidx} or a vector, \verb{$<-} and
+\verb{[[<-} modify the values of an existing column or create a new
+column of a \code{dfidx} object. \code{transform}, \code{subset} and
+\code{organize} return a \code{dfidx} object. \code{print} is called for its
+side effect.
 }
 \description{
-A \code{dfidx} is a \code{data.frame} with a "sticky" data.frame column
+A \code{dfidx} object is a data frame with a "sticky" data frame column
 which contains the indexes. Specific methods of functions that
-extract lines and/or columns of a \code{data.frame} are provided.
+extract lines and/or columns of a data frame are provided : \code{[},
+\code{[[}, \code{$},\verb{[<-}, \verb{[[<-} and \verb{$<-}. Moreover, methods are provided
+for \code{base::transform} and \code{base::subset} in order to easily
+generate new variables and select some rows and columns of a
+\code{dfidx} oject. An \code{organize} function is also provided to sort a
+\code{dfidx} object using one or several series.
 }
 \examples{
 mn <- dfidx(munnell)
@@ -77,7 +96,7 @@ mn <- dfidx(munnell)
 mn$gsp
 # or
 mn[["gsp"]]
-# extract a subset of series (returns as a dfidx object)
+# extract a subset of series (returned as a dfidx object)
 mn[c("gsp", "unemp")]
 # extract a subset of rows and columns
 mn[mn$unemp > 10, c("utilities", "water")]
@@ -87,7 +106,14 @@ print(mn, n = 3)
 print(idx(mn), n = 3)
 print(mn$gsp, n = 3)
 # a dfidx object can be coerced to a data.frame
-head(as.data.frame(mn))
+as.data.frame(mn)
+# transform, subset and organize are usefull methods/function to
+# create new series, select a subset of lines and/or columns and to
+# sort the `dfidx` object using one or several series
+transform(mn, gsp70 = ifelse(year == 1970, gsp, 0))
+subset(mn, gsp > 200000, select = c("gsp", "unemp"))
+subset(mn, 1:20, select = c("gsp", "unemp"))
+organize(mn, year, unemp)
 }
 \author{
 Yves Croissant
